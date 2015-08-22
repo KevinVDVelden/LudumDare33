@@ -22,13 +22,12 @@ def init( self ):
     elif self.loadLevel == 19:
         self.world = ecs.World()
 
-        for x in range( 127, 130 ):
-            for y in range( 127, 130 ):
-                pos = ( x, y )
-                ent = self.world.addEntity( pos )
-                ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_mana_11.png' ) )
-                ent.addComponent( gamelogic.BuildingComponent( 'heart' ) )
-                self.changingCorruption[ self.corruption.I( pos ) ] = 2000
+        gamelogic.building.makeBuilding( self, ( 128, 128 ), gamelogic.building.hearthZiggurat )
+
+        gamelogic.building.makeBuilding( self, ( 127, 128 ), gamelogic.building.hearthPylon )
+        gamelogic.building.makeBuilding( self, ( 128, 127 ), gamelogic.building.hearthPylon )
+        gamelogic.building.makeBuilding( self, ( 129, 128 ), gamelogic.building.hearthPylon )
+        gamelogic.building.makeBuilding( self, ( 128, 129 ), gamelogic.building.hearthPylon )
     elif self.loadLevel > 20:
         gamelogic.centerCameraOnTile( ( 128, 128 ) )
         initGui( self )
@@ -44,13 +43,20 @@ def initGui( self ):
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar', margin=6 ) )
 
     buildingBar = self.widgets[0]
-    def addBuilding( image, name ):
-        button = buildingBar.addChild( widgets.IconButton, game.assets[ 'img/gui/bar_iconholder.png' ], game.assets[ 'img/gui/bar_iconholder_hover.png' ] )
-        print( button.rect.left, button.rect.top )
+    def addBuilding( image, name, callback ):
+        button = buildingBar.addChild( widgets.IconButton, game.assets[ 'img/gui/bar_iconholder.png' ], game.assets[ 'img/gui/bar_iconholder_hover.png' ], callback = callback )
         buildingBar.addChild( widgets.Icon, game.assets[ image ], rect = pygame.Rect( button.rect.left+2, button.rect.top+15, 32, 32 ) )
-    addBuilding( 'img/buildings/combined/building_mana_0.png', 'Mana pylon' )
-    addBuilding( 'img/buildings/combined/building_power_0.png', 'Soul pylon' )
-    addBuilding( 'img/buildings/combined/building_life_0.png', 'Life pylon' )
+        buildingBar.addChild( widgets.Text, name, font = 'description', rect = pygame.Rect( button.rect.left, button.rect.top + 50, 34, 14 ) )
+
+    def setBuildingCb( building ):
+        def cb( _ ):
+            self.buildingConfig = building
+        return cb
+
+    addBuilding( 'img/buildings/combined/building_mana_0.png', 'Mana ziggurat', setBuildingCb( gamelogic.building.manaZiggurat ) )
+    addBuilding( 'img/buildings/combined/building_power_0.png', 'Soul ziggurat', setBuildingCb( gamelogic.building.soulZiggurat ) )
+    addBuilding( 'img/buildings/combined/pylon_mana_0.png', 'Mana pylon', setBuildingCb( gamelogic.building.manaPylon ) )
+    addBuilding( 'img/buildings/combined/pylon_power_0.png', 'Mana pylon', setBuildingCb( gamelogic.building.soulPylon ) )
 
     #Resources
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar', onTop = True, margin=10 ) )
@@ -61,5 +67,6 @@ def initGui( self ):
         rect.height /= 2
         self.widgets[1].addChild( widgets.TextButton, name, rect = rect, drawBackground = False )
         return self.widgets[1].children[-2]
+
     self.manaWidget = addResource( 'Mana' )
     self.soulsWidget = addResource( 'Souls' )

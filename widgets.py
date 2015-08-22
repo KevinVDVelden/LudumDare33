@@ -84,11 +84,12 @@ class TextButton( Button ):
     def __init__( self, rect, text, font = 'menu', **kargs ):
         self.text = text
         self.font = font
-        self.color = ( 0, 0, 0 )
+        self.color = ( 0, 0, 0 ) if 'color' not in kargs else kargs['color']
 
         self.drawBackground = True if 'drawBackground' not in kargs else kargs['drawBackground']
 
         super().__init__( rect, **kargs )
+        self.isDirty = True
 
     def clean( self ):
         super().clean()
@@ -138,6 +139,31 @@ class IconButton( Button ):
         self.buffer = self.buffer.convert_alpha()
         self.buffer.fill( (0,0,0,0) )
         self.buffer.blit( self.image, ( 0, 0 ) )
+
+class Text( Widget ):
+    def __init__( self, rect, text, font = 'menu', **kargs ):
+        self.text = text
+        self.font = font
+        self.color = ( 0, 0, 0 ) if 'color' not in kargs else kargs['color']
+
+        super().__init__( rect, **kargs )
+        self.buffer = self.createBuffer().convert_alpha()
+
+    def clean( self ):
+        super().clean()
+
+        renderedText = base.drawing.renderFont( self.font, self.text, self.color )
+        self.buffer.blit( renderedText, (
+            ( self.buffer.get_width() - renderedText.get_width() ) // 2 ,
+            ( self.buffer.get_height() - renderedText.get_height() ) // 2  ) )
+
+    def setText( self, newText ):
+        self.isDirty = True
+        self.text = newText
+
+    def setColor( self, color ):
+        self.isDirty = True
+        self.color = color
 
 class Icon( Widget ):
     def __init__( self, rect, image, **kargs ):

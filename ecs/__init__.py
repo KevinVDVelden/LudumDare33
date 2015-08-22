@@ -75,8 +75,11 @@ class World:
         pass
 
     def doFrame( self, frameTime, accumelatorTime ):
-        for ent in self.entitiesWithComponent( COMPONENT_RENDER ):
-            ent.components[ COMPONENT_RENDER ].render( ent, accumelatorTime )
+        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE_STORE )
+
+        for componentType in renderComponents:
+            for ent in self.entitiesWithComponent( componentType ):
+                ent.components[ componentType ].render( ent, accumelatorTime )
 
     def removeEntity( self, ent ):
         self.isDirty = True

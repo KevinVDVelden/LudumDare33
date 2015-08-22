@@ -36,6 +36,7 @@ class GameScene( Scene ):
         self.flowThread = None
 
         self.resources = defaultdict( lambda: ( 0, 0, 0 ) )
+        self.buildingConfig = None
 
     def calculateTileCorruption( self, i ):
         x, y = int( i % game.mapSize[0] ), int( i // game.mapSize[0] )
@@ -62,13 +63,8 @@ class GameScene( Scene ):
         if event.button == 1:
             entities = self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING ).atPosition( pos )
             if len( entities ) == 0:
-                ent = self.world.addEntity( pos )
-                ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_mana_11.png' ) )
-                ent.addComponent( gamelogic.BuildingComponent( 'mana' ) )
-                ent.addComponent( gamelogic.resources.ResourceStoreComponent( { 'mana': 20 } ) )
-                ent.addComponent( gamelogic.resources.ResourceUseComponent( { 'mana': 10 } ) )
-
-                self.changingCorruption[ self.corruption.I( pos ) ] = 1000
+                if not self.buildingConfig is None:
+                    gamelogic.building.makeBuilding( self, pos, self.buildingConfig )
             else:
                 for ent in entities:
                     self.world.removeEntity( ent )
@@ -135,6 +131,9 @@ class GameScene( Scene ):
 
     def doTick( self ):
         self.world.doTick()
+        for ent in self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING ):
+            ent.getComponent( ecs.COMPONENT_BUILDING ).think( ent, self.world )
+
         gamelogic.resources.calculateResources( self )
 
         if self.flowThread is None or not self.flowThread.is_alive():
