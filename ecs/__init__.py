@@ -48,6 +48,11 @@ class Entity:
     def getComponent( self, typeId ):
         return self.components[ typeId ]
 
+    def removeFromWorld( self ):
+        for comp in self.components:
+            if hasattr( comp, 'removeFromWorld' ):
+                comp.removeFromWorld( self, self.world )
+
 class EntityList( list ):
     def __init__( self, world, *args, **kargs ):
         super().__init__( *args, **kargs )
@@ -71,6 +76,11 @@ class World:
         for ent in self.entitiesWithComponent( COMPONENT_RENDER ):
             ent.components[ COMPONENT_RENDER ].render( ent, accumelatorTime )
 
+    def removeEntity( self, ent ):
+        self.isDirty = True
+        self.entities.remove( ent )
+
+        ent.removeFromWorld()
 
     def addEntity( self, position ):
         ent = Entity( position, self )

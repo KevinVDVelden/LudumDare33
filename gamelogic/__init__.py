@@ -39,11 +39,18 @@ class BuildingComponent:
             neighbour = None if len( neighbour ) == 0 else neighbour[ 0 ]
 
             if neighbour is not None:
-                self.neighbours[ i ] = neighbour
+                self.neighbours[ i ] = neighbour.getComponent( ecs.COMPONENT_BUILDING )
                 neighbour.getComponent( ecs.COMPONENT_BUILDING ).registerNewNeighbour( self, BUILDING_REVERSE[ i ] )
 
         self.setTexture()
 
+    def removeFromWorld( self, ent, world ):
+        for i in range( len( self.neighbours ) ):
+            neighbour = self.neighbours[ i ]
+            if neighbour is None:
+                continue
+
+            neighbour.registerNewNeighbour( None, BUILDING_REVERSE[ i ] )
 
     def think( self, ent, world ):
         assert self.entity == ent

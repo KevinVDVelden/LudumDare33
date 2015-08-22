@@ -1,5 +1,6 @@
 import pygame
 import sys
+import cProfile
 pygame.init()
 
 import game
@@ -30,10 +31,17 @@ while game.gameIsRunning:
 
     game.scene.doFrame( frameTime )
 
-    while game.accumelator > 100:
+    pygame.display.set_caption( 'Untitled game (%f/%d frametime. %d/%d camera)' % ( frameTime, accumelator, game.cameraPosX, game.cameraPosY ) )
+    if accumelator > 200:
+        #cProfile.run( 'game.scene.doTick()' )
         game.scene.doTick()
-        game.accumelator -= 100
+
+        skipped = -1
+        while accumelator > 200:
+            accumelator -= 200
+            skipped += 1
+        if skipped > 0:
+            print( 'Skipping %d ticks.' % skipped )
 
     sys.stdout.flush()
-    pygame.display.set_caption( 'Untitled game (%d frametime. %d/%d camera)' % ( frameTime, game.cameraPosX, game.cameraPosY ) )
     pygame.display.flip()
