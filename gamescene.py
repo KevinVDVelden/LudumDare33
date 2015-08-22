@@ -12,24 +12,19 @@ import threading
 
 keysPressed = base.frame.keysPressed
 
-global RenderTiles
-RenderTiles = []
+game.RenderTiles = []
 
 def addTile( tileId, name ):
-    while len( RenderTiles ) <= tileId:
-        RenderTiles.append( None )
+    while len( game.RenderTiles ) <= tileId:
+        game.RenderTiles.append( None )
 
     img = game.assets[ name ]
 
-    RenderTiles[ tileId ] = img
+    game.RenderTiles[ tileId ] = img
 
 addTile( 10, 'img/land/grass.png' )
 addTile( 11, 'img/land/grass_2.png' )
 addTile( 12, 'img/land/grass_3.png' )
-
-def centerCameraOnTile( pos ):
-    game.cameraPosX = ( pos[0] * 32 + 16 ) - game.SCREEN_SIZE[0] / 2
-    game.cameraPosY = ( pos[1] * 32 + 16 ) - game.SCREEN_SIZE[1] / 2
 
 class GameScene( Scene ):
     def __init__( self ):
@@ -54,39 +49,11 @@ class GameScene( Scene ):
 
         if cur != game.mapBuffer[ i ]:
             print( 'Redrawing %d' % cur )
-            base.drawing.drawMap( ( x, y ), RenderTiles[ game.mapBuffer[ i ] ] )
+            base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] ] )
         
 
     def init( self ):
-        if self.loadLevel == 0:
-            base.drawing.initMap( ( 256, 256 ) )
-        elif self.loadLevel == 1:
-            for i in range( len( game.mapBuffer ) ):
-                game.mapBuffer[ i ] = 10
-
-            flow = flowmap.Flowmap( game.mapSize )
-            self.corruption = flow
-        elif self.loadLevel == 10:
-            global RenderTiles
-            for x in range( 256 ):
-                for y in range( 256 ):
-                    base.drawing.drawMap( ( x, y ), RenderTiles[ game.mapBuffer[ x + y * 256 ] ] )
-        elif self.loadLevel == 19:
-            self.world = ecs.World()
-
-            for x in range( 127, 130 ):
-                for y in range( 127, 130 ):
-                    pos = ( x, y )
-                    ent = self.world.addEntity( pos )
-                    ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_mana_11.png' ) )
-                    ent.addComponent( gamelogic.BuildingComponent( 'heart' ) )
-                    self.changingCorruption[ self.corruption.I( pos ) ] = 2000
-        elif self.loadLevel > 20:
-            centerCameraOnTile( ( 128, 128 ) )
-            return True
-
-        self.loadLevel += 1
-        return False
+        return gamelogic.init.init( self )
 
     def clickTile( self, pos, event ):
         if event.button == 1:
@@ -100,6 +67,7 @@ class GameScene( Scene ):
             else:
                 for ent in entities:
                     self.world.removeEntity( ent )
+                self.changingCorruption[ self.corruption.I( pos ) ] = 0
         elif event.button == 3:
             i = self.corruption.I( pos )
             print( self.corruption.surface[ i ], self.corruption.backSurface[ i ] )
@@ -108,11 +76,20 @@ class GameScene( Scene ):
     def doInput( self, frameTime ):
         #TODO: Get back input
         for event in base.frame.receiveInput():
+            if event.type in ( pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION ):
+                handled = False
+                for widget in self.widgets:
+                    if widget.checkIntersect( event ):
+                        handled = True
+                        break
+
+                if handled:
+                    continue
+
             if event.type == pygame.MOUSEBUTTONUP:
                 mapPosition = ( game.cameraPosX + event.pos[0], game.cameraPosY  + event.pos[1] )
                 tilePosition = ( mapPosition[0] // 32, mapPosition[1] // 32 )
                 self.clickTile( tilePosition, event )
-
 
         if keysPressed[ 'cameraDown' ]:
             game.cameraPosY += config.cameraSpeedY * frameTime
@@ -142,7 +119,7 @@ class GameScene( Scene ):
                     game.mapBuffer[ i ] = 10
 
                 if cur != game.mapBuffer[ i ]:
-                    base.drawing.drawMap( ( x, y ), RenderTiles[ game.mapBuffer[ i ] ] )
+                    base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] ] )
 
         base.drawing.renderMap( ( int( game.cameraPosX ), int( game.cameraPosY ) ) )
 
@@ -150,6 +127,7 @@ class GameScene( Scene ):
         self.doInput( frameTime )
         self.drawGame( frameTime )
         self.world.doFrame( frameTime, game.accumelator )
+        gamelogic.draw.drawGui( self, frameTime, game.accumelator )
 
     def doTick( self ):
         self.world.doTick()
@@ -160,42 +138,10 @@ class GameScene( Scene ):
             for n in self.changingCorruption:
                 self.corruption.addSource( n, self.changingCorruption[ n ] )
 
-            self.corruption.cleanIterative()
-            #self.flowThread = threading.Thread( target = lambda: self.corruption.cleanIterative() )
-            #self.flowThread.start()
+            self.flowThread = threading.Thread( target = lambda: self.corruption.cleanIterative() )
+            self.flowThread.start()
+
+            self.changingCorruption = dict()
         else:
             print( 'WARNING: Flow update thread not done on time!' )
-            #self.corruption.cleanIterative()
-
-        #changeDone = set()
-        #for index in self.changingCorruption:
-        #    neighbourVal = max( [ self.corruption.surface[ index + n ] for n in self.corruption.offsets ] )
-        #    curVal = self.corruption.surface[ index ]
-
-        #    target = self.changingCorruption[ index ]
-
-
-        #    if target == 0:
-        #        if neighbourVal >= curVal:
-        #            curVal = 0
-
-        #        if curVal == 0:
-        #            changeDone.add( index )
-
-        #        self.corruption.addSource( index, curVal - 1 )
-        #    else:
-        #        if curVal + 1 >= target:
-        #            changeDone.add( index )
-        #            curVal = target - 1
-
-        #        self.corruption.addSource( index, curVal + 1 )
-
-        #for n in self.corruption.clean():
-        #    self.calculateTileCorruption( n )
-        #for n in self.changingCorruption:
-        #    self.calculateTileCorruption( n )
-
-        #for done in changeDone:
-        #    del self.changingCorruption[ done ]
-
-
+            self.corruption.cleanIterative()

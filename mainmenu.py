@@ -26,11 +26,11 @@ class MainMenu( Scene ):
             #TODO: Add a loadingscreen here
             self.nextScene = GameScene()
 
-        self.widgets.append( Button( None, 'Start', layoutFunc = getButtonRect, callback=startCallback ) )
+        self.widgets.append( TextButton( None, 'Start', layoutFunc = getButtonRect, callback=startCallback ) )
 
         def quitCallback( _ ):
             game.gameIsRunning = False
-        self.widgets.append( Button( None, 'Quit', layoutFunc = getButtonRect, callback=quitCallback ) )
+        self.widgets.append( TextButton( None, 'Quit', layoutFunc = getButtonRect, callback=quitCallback ) )
 
     def doInput( self, frameTime ):
         for event in base.frame.receiveInput():
@@ -45,7 +45,7 @@ class MainMenu( Scene ):
         self.doInput( frameTime )
 
         for n in self.widgets:
-            n.draw()
+            n.draw( game.screen )
 
     def doTick( self ):
         pass
