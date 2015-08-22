@@ -1,6 +1,7 @@
 import ecs
 import gamelogic.init
 import gamelogic.draw
+import gamelogic.resources
 import game
 
 global BUILDINGDIRECTION
@@ -9,9 +10,9 @@ BUILDING_REVERSE = ( 2, 3, 0, 1 )
 
 BUILDING_IMG_FORMAT = 'img/buildings/combined/building_%s_%d.png'
 
-class BuildingComponent:
+class BuildingComponent( ecs.Component ):
     def __init__( self, buildingType ):
-        self.typeId = ecs.COMPONENT_BUILDING
+        super().__init__( ecs.COMPONENT_BUILDING )
         self.buildingType = buildingType
         self.neighbours = [ None, None, None, None ]
 
@@ -29,8 +30,7 @@ class BuildingComponent:
         self.entity.getComponent( ecs.COMPONENT_RENDER ).setSprite( newSprite )
 
     def setEntity( self, ent, world ):
-        self.entity = ent
-        self.world = world
+        super().setEntity( ent, world )
 
         otherBuildings = self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING )
 

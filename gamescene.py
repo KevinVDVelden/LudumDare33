@@ -1,3 +1,4 @@
+from collections import defaultdict
 from scene import Scene
 import pygame
 import base
@@ -34,6 +35,8 @@ class GameScene( Scene ):
         self.changingCorruption = dict()
         self.flowThread = None
 
+        self.resources = defaultdict( lambda: ( 0, 0, 0 ) )
+
     def calculateTileCorruption( self, i ):
         x, y = int( i % game.mapSize[0] ), int( i // game.mapSize[0] )
         corruption = self.corruption.surface[ i ]
@@ -62,6 +65,8 @@ class GameScene( Scene ):
                 ent = self.world.addEntity( pos )
                 ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_mana_11.png' ) )
                 ent.addComponent( gamelogic.BuildingComponent( 'mana' ) )
+                ent.addComponent( gamelogic.resources.ResourceStoreComponent( { 'mana': 20 } ) )
+                ent.addComponent( gamelogic.resources.ResourceUseComponent( { 'mana': 10 } ) )
 
                 self.changingCorruption[ self.corruption.I( pos ) ] = 1000
             else:
@@ -131,6 +136,7 @@ class GameScene( Scene ):
 
     def doTick( self ):
         self.world.doTick()
+        gamelogic.resources.calculateResources( self )
 
         if self.flowThread is None or not self.flowThread.is_alive():
             self.corruption.swap()

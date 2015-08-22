@@ -40,3 +40,17 @@ def initGui( self ):
     self.widgets = []
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar' ) )
     self.widgets[0].addChild( widgets.IconButton, game.assets[ 'img/gui/bar_iconholder.png' ], game.assets[ 'img/gui/bar_iconholder_hover.png' ] )
+
+    self.widgets.append( widgets.Bar( 512, 'img/gui/bar', onTop = True, margin=10 ) )
+
+    self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
+    rect = self.widgets[1].children[0].rect.copy()
+    rect.height /= 2
+    self.widgets[1].addChild( widgets.TextButton, 'Mana', rect = rect, drawBackground = False )
+    self.manaWidget = self.widgets[1].children[0]
+
+    self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
+    rect = self.widgets[1].children[2].rect.copy()
+    rect.height /= 2
+    self.widgets[1].addChild( widgets.TextButton, 'Souls', rect = rect, drawBackground = False )
+    self.soulsWidget = self.widgets[1].children[2]

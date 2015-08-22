@@ -6,7 +6,9 @@ COMPONENT_RENDER = 1
 COMPONENT_THINK = 2
 COMPONENT_ATTACK = 3
 COMPONENT_BUILDING = 4
-COMPONENT_MAX = 5
+COMPONENT_RESOURCE_USER = 5
+COMPONENT_RESOURCE_STORE = 6
+COMPONENT_MAX = 7
 
 def idToMask( _id ):
     return 1 << ( _id - 1 )
@@ -102,3 +104,12 @@ class World:
         if self.isDirty:
             self.isDirty = False
             self.entityMasks = list( [ None for n in range( COMPONENT_MAX ) ] )
+
+class Component:
+    def __init__( self, typeId ):
+        self.typeId = typeId
+
+    def setEntity( self, ent, world ):
+        self.entity = ent
+        self.world = world
+

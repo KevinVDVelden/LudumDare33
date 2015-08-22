@@ -33,7 +33,8 @@ class Widget:
                 screen.blit( self.buffer, ( self.rect.left, self.rect.top ) )
 
     def createBuffer( self ):
-        self.buffer = pygame.Surface( ( int( self.rect.width ), int( self.rect.height ) ) )
+        print( self.rect )
+        self.buffer = pygame.Surface( ( int( self.rect.width ), int( self.rect.height ) ), pygame.SRCALPHA )
         return self.buffer
 
 
@@ -83,12 +84,19 @@ class TextButton( Button ):
         self.font = font
         self.color = ( 0, 0, 0 )
 
+        self.drawBackground = True if 'drawBackground' not in kargs else kargs['drawBackground']
+        print( kargs )
+
         super().__init__( rect, **kargs )
 
     def clean( self ):
         super().clean()
 
-        self.buffer.fill( self.bgColor )
+        if self.drawBackground:
+            self.buffer.fill( self.bgColor )
+        else:
+            self.buffer.fill( (0,0,0,0) )
+
         renderedText = base.drawing.renderFont( self.font, self.text, self.color )
         self.buffer.blit( renderedText, (
             ( self.buffer.get_width() - renderedText.get_width() ) // 2 ,
@@ -130,17 +138,48 @@ class IconButton( Button ):
         self.buffer.fill( (0,0,0,0) )
         self.buffer.blit( self.image, ( 0, 0 ) )
 
+class Charger( Button ):
+    def __init__( self, rect, normalImage, hoverImage, **kargs ):
+        self.normalImage = normalImage
+        self.hoverImage = hoverImage
+
+        if rect.width < 0:
+            rect.width = self.normalImage.get_width()
+        if rect.height < 0:
+            rect.height = self.normalImage.get_height()
+
+        self.charge = 0
+
+        super().__init__( rect, **kargs )
+
+    def setCharge( self, val  ):
+        self.charge = val
+        self.isDirty = True
+
+    def clean( self ):
+        super().clean()
+        self.buffer = self.buffer.convert_alpha()
+        self.buffer.fill( (0,0,0,0) )
+        self.buffer.blit( self.normalImage, ( 0, 0 ) )
+
+        chargeRect = pygame.Rect( 0,0, int( self.rect.width * self.charge ), int( self.rect.height ) )
+        if chargeRect.width > 0:
+            self.buffer.blit( self.hoverImage, ( 0, 0 ), area = chargeRect )
+
+
 class Bar( Widget ):
-    def __init__( self, width, imgPrefix, font = 'menu', **kargs ):
+    def __init__( self, width, imgPrefix, onTop = False, **kargs ):
         self.imgPrefix = imgPrefix
 
         self.left = game.assets[ imgPrefix + '_left.png' ]
         self.right = game.assets[ imgPrefix + '_right.png' ]
         self.center = game.assets[ imgPrefix + '_center.png' ]
 
+        self.margin = 0 if 'margin' not in kargs else kargs['margin']
+
         super().__init__( pygame.Rect( (
             ( game.SCREEN_SIZE[0] - width ) / 2,
-            ( game.SCREEN_SIZE[1] - self.left.get_height() ),
+            ( game.SCREEN_SIZE[1] - self.left.get_height() if not onTop else 0 ),
             width, self.left.get_height() ) ), **kargs )
 
         self.buffer = self.createBuffer()
@@ -154,14 +193,18 @@ class Bar( Widget ):
             self.buffer.blit( self.center, ( n, 0 ) )
         self.buffer.blit( self.right, ( self.buffer.get_width() - self.right.get_width(), 0 ) )
 
-    def addChild( self, construct, *args ):
+    def addChild( self, construct, *args, **kargs ):
         if len( self.children ) == 0:
             left = self.left.get_width()
         else:
-            left = max( [ n.rect.width + n.rect.left for n in self.children ] )
+            left = max( [ n.rect.width + n.rect.left for n in self.children ] ) + self.margin
         rect = pygame.Rect( left, 0, -1, -1 )
 
-        self.children.append( construct( *( tuple( [ rect ] ) + args ) ) )
+        if 'rect' in kargs:
+            rect = kargs['rect']
+            del kargs['rect']
+
+        self.children.append( construct( *( tuple( [ rect ] ) + args ), **kargs ) )
 
     def checkIntersect( self, event ):
         pos = event.pos
