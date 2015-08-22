@@ -8,7 +8,7 @@ def initAssets():
         for _file in os.listdir( path ):
             if os.path.isfile( path + _file ):
                 try:
-                    game.assets[ path + _file ] = pygame.image.load( path + _file ).convert()
+                    game.assets[ path + _file ] = pygame.image.load( path + _file ).convert_alpha()
                 except Exception as e:
                     #Text files? Whatever
                     print( e )

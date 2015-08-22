@@ -1,10 +1,12 @@
 import game
 import base.drawing
+from functools import lru_cache
 
 COMPONENT_RENDER = 1
 COMPONENT_THINK = 2
 COMPONENT_ATTACK = 3
-COMPONENT_MAX = 4
+COMPONENT_BUILDING = 4
+COMPONENT_MAX = 5
 
 def idToMask( _id ):
     return 1 << ( _id - 1 )
@@ -19,6 +21,12 @@ class RenderComponent:
         pos = ( int( entity.position[0] * 32 ) - game.cameraPosX, int( entity.position[1] * 32 ) - game.cameraPosY )
         base.drawing.drawSprite( pos, self.tile )
 
+    def setSprite( self, newTile ):
+        self.tile = game.assets[ newTile ]
+
+    def setEntity( self, ent, world ):
+        pass
+
 class Entity:
     def __init__( self, position, world ):
         self.componentMask = 0
@@ -30,10 +38,26 @@ class Entity:
         return self.componentMask & idToMask( compId ) > 0
 
     def addComponent( self, comp ):
-        self.components[ comp.typeId ] = comp
-        self.componentMask |= idToMask( comp.typeId )
         self.world.isDirty = True
 
+        self.components[ comp.typeId ] = comp
+        self.componentMask |= idToMask( comp.typeId )
+
+        comp.setEntity( self, self.world )
+
+    def getComponent( self, typeId ):
+        return self.components[ typeId ]
+
+class EntityList( list ):
+    def __init__( self, world, *args, **kargs ):
+        super().__init__( *args, **kargs )
+        self.world = world
+
+    def atPosition( self, pos ):
+        ret = EntityList( self.world, [ ent for ent in self if (
+            ent.position[0] == pos[0] and ent.position[1] == pos[1] ) ] )
+
+        return ret
 
 class World:
     def __init__( self ):
@@ -60,7 +84,7 @@ class World:
 
         if self.entityMasks[ compId ] is None:
             mask = idToMask( compId )
-            self.entityMasks[ compId ] = list( [ ent for ent in self.entities if ent.componentMask & mask > 0 ] )
+            self.entityMasks[ compId ] = EntityList( self, [ ent for ent in self.entities if ent.componentMask & mask > 0 ] )
 
         return self.entityMasks[ compId ]
 

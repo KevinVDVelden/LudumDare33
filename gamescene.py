@@ -1,6 +1,7 @@
 from scene import Scene
 import base
 import game
+import gamelogic
 import util
 import config
 import random
@@ -19,8 +20,9 @@ def addTile( tileId, name ):
 
     RenderTiles[ tileId ] = img
 
-addTile( 0, 'img/dungeon/wall_1.png' )
-addTile( 10, 'img/dungeon/floor_1.png' )
+addTile( 10, 'img/land/grass.png' )
+addTile( 11, 'img/land/grass_2.png' )
+addTile( 12, 'img/land/grass_3.png' )
 
 def centerCameraOnTile( pos ):
     game.cameraPosX = ( pos[0] * 32 + 16 ) - game.SCREEN_SIZE[0] / 2
@@ -37,14 +39,18 @@ class GameScene( Scene ):
             base.drawing.initMap( ( 256, 256 ) )
         elif self.loadLevel == 1:
             for i in range( len( game.mapBuffer ) ):
-                game.mapBuffer[ i ] = 0
+                game.mapBuffer[ i ] = 10
 
             i = 0
             for x in range( 256 ):
                 for y in range( 256 ):
-                    isFloor = ( ( x - 128 ) ** 2 + ( y - 128 ) ** 2 ) < ( 10 + random.random() * 5 ) ** 2
-                    if isFloor:
+                    spawnDist = ( ( x - 128 ) ** 2 + ( y - 128 ) ** 2 ) - ( 10 + random.random() * 5 ) ** 2
+                    if spawnDist > 0:
                         game.mapBuffer[ i ] = 10
+                    elif spawnDist < -(10**2):
+                        game.mapBuffer[ i ] = 12
+                    else:
+                        game.mapBuffer[ i ] = 11
                     
 
                     i += 1
@@ -57,8 +63,12 @@ class GameScene( Scene ):
         elif self.loadLevel == 19:
             self.world = ecs.World()
 
-            ent = self.world.addEntity( ( 128, 128 ) )
-            ent.addComponent( ecs.RenderComponent( 'img/iron_imp.png' ) )
+            for x in range( 127, 130 ):
+                for y in range( 127, 130 ):
+                    pos = ( x, y )
+                    ent = self.world.addEntity( pos )
+                    ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_mana_11.png' ) )
+                    ent.addComponent( gamelogic.BuildingComponent( 'mana' ) )
         elif self.loadLevel > 20:
             centerCameraOnTile( ( 128, 128 ) )
             return True
