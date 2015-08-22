@@ -46,3 +46,6 @@ class MainMenu( Scene ):
 
         for n in self.widgets:
             n.draw()
+
+    def doTick( self ):
+        pass

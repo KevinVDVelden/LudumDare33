@@ -23,10 +23,17 @@ while game.gameIsRunning:
     lastFrameTime = curTime - lastTime
     lastTime = curTime
 
+    accumelator += lastFrameTime
+    game.accumelator = accumelator
+
     frameTime = lastFrameTime / 1000 #Given in miliseconds, converting it to a float of unit seconds
 
     game.scene.doFrame( frameTime )
 
+    while game.accumelator > 100:
+        game.scene.doTick()
+        game.accumelator -= 100
+
     sys.stdout.flush()
-    pygame.display.set_caption( 'Untitled game (%d frametime)' % frameTime )
+    pygame.display.set_caption( 'Untitled game (%d frametime. %d/%d camera)' % ( frameTime, game.cameraPosX, game.cameraPosY ) )
     pygame.display.flip()
