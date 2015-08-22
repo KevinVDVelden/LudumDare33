@@ -6,6 +6,7 @@ import util
 import config
 import random
 import ecs
+import flowmap
 
 keysPressed = base.frame.keysPressed
 
@@ -41,20 +42,15 @@ class GameScene( Scene ):
             for i in range( len( game.mapBuffer ) ):
                 game.mapBuffer[ i ] = 10
 
-            i = 0
-            for x in range( 256 ):
-                for y in range( 256 ):
-                    spawnDist = ( ( x - 128 ) ** 2 + ( y - 128 ) ** 2 ) - ( 10 + random.random() * 5 ) ** 2
-                    if spawnDist > 0:
-                        game.mapBuffer[ i ] = 10
-                    elif spawnDist < -(10**2):
-                        game.mapBuffer[ i ] = 12
-                    else:
-                        game.mapBuffer[ i ] = 11
-                    
+            flow = flowmap.Flowmap( game.mapSize )
+            for x in range( 127, 130 ):
+                for y in range( 127, 130 ):
+                    flow.addSource( ( x, y ), 10 )
 
-                    i += 1
-
+            flow.clean()
+            self.corruption = flow
+            for i in range( 256 * 256 ):
+                game.mapBuffer[ i ] = 12 if flow.surface[ i ] % 2 > 0 else 10
         elif self.loadLevel == 10:
             global RenderTiles
             for x in range( 256 ):

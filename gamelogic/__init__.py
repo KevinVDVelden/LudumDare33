@@ -13,8 +13,6 @@ class BuildingComponent:
         self.neighbours = [ None, None, None, None ]
 
     def registerNewNeighbour( self, neighbour, direction ):
-        print( self, neighbour, direction )
-
         self.neighbours[ direction ] = neighbour
         self.setTexture()
 
@@ -22,19 +20,16 @@ class BuildingComponent:
         mask = 0
         for i in range( len( self.neighbours ) ):
             if self.neighbours[ i ]:
-                print( i )
                 mask += ( 1 << i ) 
 
         newSprite = BUILDING_IMG_FORMAT % ( self.buildingType, mask ) 
         self.entity.getComponent( ecs.COMPONENT_RENDER ).setSprite( newSprite )
-        print( newSprite )
 
     def setEntity( self, ent, world ):
         self.entity = ent
         self.world = world
 
         otherBuildings = self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING )
-        print( otherBuildings )
 
         pos = self.entity.position
         for i in range( len( BUILDINGDIRECTION ) ):

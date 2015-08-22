@@ -27,13 +27,16 @@ do
         fi
     done
 
-    for hue_all in 0,mana 100,power 180,life
+    for hue_all in `cat files.txt|grep -v '#'|grep ,`
     do
-        hue=$(echo $hue_all|cut -f1 -d,)
-        hue_name=$(echo $hue_all|cut -f2 -d,)
+        hue=$(echo $hue_all|cut -f1 -d\|)
+        hue_name=$(echo $hue_all|cut -f2 -d\|)
+
+        echo $hue
+        echo $hue_name
 
         composite -gravity center tmp/cur_bridge.png ziggurat_base.png tmp/ziggurat.png
-        convert -modulate 100,100,$hue effect_red.png tmp/effect_curHue.png
+        convert -modulate $hue effect_red.png tmp/effect_curHue.png
 
         composite -gravity center tmp/effect_curHue.png tmp/ziggurat.png combined/building_"$hue_name"_"$bridgeI".png
     done
