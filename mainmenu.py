@@ -41,6 +41,7 @@ class MainMenu( Scene ):
                 print( event )
 
     def doFrame( self, frameTime ):
+        game.screen.fill( ( 30, 90, 80 ) )
         super().doFrame( frameTime )
         self.doInput( frameTime )
 

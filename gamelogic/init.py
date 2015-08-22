@@ -4,6 +4,7 @@ import widgets
 import game
 import ecs
 import gamelogic
+import pygame
 
 def init( self ):
     if self.loadLevel == 0:
@@ -38,19 +39,27 @@ def init( self ):
 
 def initGui( self ):
     self.widgets = []
-    self.widgets.append( widgets.Bar( 512, 'img/gui/bar' ) )
-    self.widgets[0].addChild( widgets.IconButton, game.assets[ 'img/gui/bar_iconholder.png' ], game.assets[ 'img/gui/bar_iconholder_hover.png' ] )
 
+    #Buildings
+    self.widgets.append( widgets.Bar( 512, 'img/gui/bar', margin=6 ) )
+
+    buildingBar = self.widgets[0]
+    def addBuilding( image, name ):
+        button = buildingBar.addChild( widgets.IconButton, game.assets[ 'img/gui/bar_iconholder.png' ], game.assets[ 'img/gui/bar_iconholder_hover.png' ] )
+        print( button.rect.left, button.rect.top )
+        buildingBar.addChild( widgets.Icon, game.assets[ image ], rect = pygame.Rect( button.rect.left+2, button.rect.top+15, 32, 32 ) )
+    addBuilding( 'img/buildings/combined/building_mana_0.png', 'Mana pylon' )
+    addBuilding( 'img/buildings/combined/building_power_0.png', 'Soul pylon' )
+    addBuilding( 'img/buildings/combined/building_life_0.png', 'Life pylon' )
+
+    #Resources
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar', onTop = True, margin=10 ) )
 
-    self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
-    rect = self.widgets[1].children[0].rect.copy()
-    rect.height /= 2
-    self.widgets[1].addChild( widgets.TextButton, 'Mana', rect = rect, drawBackground = False )
-    self.manaWidget = self.widgets[1].children[0]
-
-    self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
-    rect = self.widgets[1].children[2].rect.copy()
-    rect.height /= 2
-    self.widgets[1].addChild( widgets.TextButton, 'Souls', rect = rect, drawBackground = False )
-    self.soulsWidget = self.widgets[1].children[2]
+    def addResource( name ):
+        self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
+        rect = self.widgets[1].children[-1].rect.copy()
+        rect.height /= 2
+        self.widgets[1].addChild( widgets.TextButton, name, rect = rect, drawBackground = False )
+        return self.widgets[1].children[-2]
+    self.manaWidget = addResource( 'Mana' )
+    self.soulsWidget = addResource( 'Souls' )

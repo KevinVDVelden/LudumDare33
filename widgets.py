@@ -10,10 +10,10 @@ class Widget:
             self.rect = rect
         self.children = []
 
-        self.isDirty = False
+        self.isDirty = True
 
     def clean( self ):
-        pass
+        self.isDirty = False
 
     def draw( self, screen ):
         isDirty = self.isDirty or any( [ n.isDirty for n in self.children ] )
@@ -33,9 +33,11 @@ class Widget:
                 screen.blit( self.buffer, ( self.rect.left, self.rect.top ) )
 
     def createBuffer( self ):
-        print( self.rect )
         self.buffer = pygame.Surface( ( int( self.rect.width ), int( self.rect.height ) ), pygame.SRCALPHA )
         return self.buffer
+
+    def checkIntersect( self, _ ):
+        return False
 
 
 class Button( Widget ):
@@ -85,7 +87,6 @@ class TextButton( Button ):
         self.color = ( 0, 0, 0 )
 
         self.drawBackground = True if 'drawBackground' not in kargs else kargs['drawBackground']
-        print( kargs )
 
         super().__init__( rect, **kargs )
 
@@ -138,6 +139,27 @@ class IconButton( Button ):
         self.buffer.fill( (0,0,0,0) )
         self.buffer.blit( self.image, ( 0, 0 ) )
 
+class Icon( Widget ):
+    def __init__( self, rect, image, **kargs ):
+        self.setImage( image )
+        if rect.width < 0:
+            rect.width = self.image.get_width()
+        if rect.height < 0:
+            rect.height = self.image.get_height()
+
+        super().__init__( rect, **kargs )
+
+    def setImage( self, image ):
+        self.image = image
+        self.isDirty = True
+
+    def clean( self ):
+        super().clean()
+        self.buffer = self.createBuffer().convert_alpha()
+        self.buffer.fill( (0,0,0,0) )
+        self.buffer.blit( self.image, ( 0, 0 ) )
+
+
 class Charger( Button ):
     def __init__( self, rect, normalImage, hoverImage, **kargs ):
         self.normalImage = normalImage
@@ -152,7 +174,7 @@ class Charger( Button ):
 
         super().__init__( rect, **kargs )
 
-    def setCharge( self, val  ):
+    def setCharge( self, val ):
         self.charge = val
         self.isDirty = True
 
@@ -204,7 +226,9 @@ class Bar( Widget ):
             rect = kargs['rect']
             del kargs['rect']
 
-        self.children.append( construct( *( tuple( [ rect ] ) + args ), **kargs ) )
+        child = construct( *( tuple( [ rect ] ) + args ), **kargs ) 
+        self.children.append( child )
+        return child
 
     def checkIntersect( self, event ):
         pos = event.pos

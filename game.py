@@ -1,4 +1,4 @@
-SCREEN_SIZE = ( 1280, 1024 )
+SCREEN_SIZE = ( 1280, 768 )
 
 gameIsRunning = True
 

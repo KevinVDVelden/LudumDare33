@@ -79,7 +79,6 @@ class GameScene( Scene ):
             print( self.corruption.resting[ i ], self.corruption.backResting[ i ] )
 
     def doInput( self, frameTime ):
-        #TODO: Get back input
         for event in base.frame.receiveInput():
             if event.type in ( pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION ):
                 handled = False
