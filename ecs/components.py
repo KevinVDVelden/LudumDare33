@@ -1,4 +1,6 @@
 import ecs
+import pygame
+import game
 
 class Component:
     def __init__( self, typeId ):
@@ -21,3 +23,16 @@ class HealthComponent( Component ):
             #TODO: Splat
             print( 'SPLAT', self.entity )
             self.world.removeEntity( self.entity )
+
+    def render( self, ent, accumelator ):
+        if self.health == self.maxHealth:
+            return
+
+        light = ( 244, 7, 7 )
+        dark = ( 140, 4, 4 )
+
+        rect = pygame.Rect( ( ( ent.position[0] + ent.velocity[0] * accumelator ) * 32 ) - game.cameraPosX, ( ( ent.position[1] + 1 + ent.velocity[1] * accumelator ) * 32 ) - game.cameraPosY, 32, 6 )
+        game.screen.fill( dark, rect = rect )
+
+        rect = pygame.Rect( rect.left + 1, rect.top + 1, int( 30 * self.health / self.maxHealth ), 4 )
+        game.screen.fill( light, rect = rect )

@@ -41,6 +41,7 @@ class ResourceStoreComponent( ecs.Component ):
         self.caps = { key: caps[key][1] for key in caps }
         self.burst = { key: caps[key][2] for key in caps }
         self.receiveCap = { key: caps[key][3] for key in caps }
+        self.resourceRenderMult = 1
 
         super().__init__( ecs.COMPONENT_RESOURCE )
 
@@ -56,7 +57,7 @@ class ResourceStoreComponent( ecs.Component ):
             rect = pygame.Rect( ( ent.position[0] * 32 ) - game.cameraPosX, ( ent.position[1] * 32 ) - game.cameraPosY + offset, 32, 6 )
             game.screen.fill( resourceColorsDark[ resource ], rect = rect )
 
-            rect = pygame.Rect( rect.left + 1, rect.top + 1, int( 30 * self.stored[resource] / self.caps[resource] ), 4 )
+            rect = pygame.Rect( rect.left + 1, rect.top + 1, min( 30, int( 30 * self.stored[resource] / self.caps[resource] * self.resourceRenderMult ) ), 4 )
             game.screen.fill( resourceColorsLight[ resource ], rect = rect )
 
             offset -= 8
@@ -78,7 +79,7 @@ class ResourceStoreComponent( ecs.Component ):
 
     def increase( self, resource, amount ):
         try:
-            self.stored[resource] = min( self.stored[resource] + amount, self.caps[resource] )
+            self.stored[resource] = max( 0, min( self.stored[resource] + amount, self.caps[resource] ) )
         except KeyError:
             pass
 
@@ -121,8 +122,7 @@ class ResourceOrb( ecs.Component ):
         if self.traveled > 5:
             #Decay resource orb
             self.stored -= 0.5
-        elif self.traveled > 15 or self.stored <= 0:
-            #Destroy as needed
+        if self.traveled > 15 or self.stored <= 0:
             world.removeEntity( ent )
             return
 

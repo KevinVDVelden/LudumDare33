@@ -71,6 +71,10 @@ class AttackComponent( ecs.Component ):
     def think( self, curEnt, world ):
         self.attackCurCooldown = max( 0, self.attackCurCooldown - 1 )
 
+        if curEnt.team != 0:
+            if not game.isNight:
+                curEnt.getComponent( ecs.COMPONENT_HEALTH ).takeDamage( random.random() )
+
         if self.costs is None:
             storage = None
         else:
@@ -142,11 +146,11 @@ Enemies['Imp'] = {
                     'pathfinder': { 'path': 'default', 'move': ( 2, 3 ) },
                     'attack': { 'range': 1, 'damage': 5, 'splash': 5 },
                     'render': 'img/iron_imp.png',
-                    'health': 10,
+                    'health': 30,
                     'team': 1 }
 Enemies['Imp2'] = {
                     'pathfinder': { 'path': 'default', 'move': ( 4, 5 ) },
                     'attack': { 'range': 1, 'damage': 8 },
                     'render': 'img/second_imp.png',
-                    'health': 20,
+                    'health': 60,
                     'team': 1 }

@@ -88,7 +88,7 @@ class World:
         self.isDirty = True
 
     def doTick( self ):
-        thinkComponents = ( COMPONENT_BUILDING, COMPONENT_THINK, COMPONENT_ATTACK )
+        thinkComponents = ( COMPONENT_THINK, COMPONENT_BUILDING, COMPONENT_ATTACK )
 
         for componentType in thinkComponents:
             for ent in self.entitiesWithComponent( componentType ):
@@ -96,7 +96,7 @@ class World:
 
 
     def doFrame( self, frameTime, accumelatorTime ):
-        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE )
+        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE, COMPONENT_HEALTH )
 
         for componentType in renderComponents:
             for ent in self.entitiesWithComponent( componentType ):

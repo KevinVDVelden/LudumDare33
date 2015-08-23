@@ -9,6 +9,7 @@ import config
 import random
 import ecs
 import threading
+import math
 
 keysPressed = base.frame.keysPressed
 
@@ -40,10 +41,13 @@ class GameScene( Scene ):
 
         self.resources = defaultdict( lambda: ( 0, 0, 0 ) )
         self.buildingConfig = None
-        self.clock = 0
+        game.clock = 0
+        game.wasNight = False
+        game.isNight = False
 
     def isNight( self ):
-        return ( self.clock % 300 ) > max( 100, 200 - ( self.clock / 150 ) )
+        game.nightTicks = game.dayTicks - max( game.minDayTicks, game.baseDayTicks - ( game.clock / game.dayTicksReductionEvery ) )
+        return ( game.clock % game.dayTicks ) > game.dayTicks - game.nightTicks
 
     def init( self ):
         return gamelogic.init.init( self )
@@ -123,8 +127,9 @@ class GameScene( Scene ):
         gamelogic.draw.drawGui( self, frameTime, game.accumelator )
 
     def doTick( self ):
-        self.clock += 1
-        print( 'Tick tock ', self.clock )
+        game.clock += 1
+        game.wasNight = game.isNight
+        game.isNight = self.isNight()
 
         self.world.sortEntities()
         self.world.doTick()
@@ -132,20 +137,17 @@ class GameScene( Scene ):
 
         #pos = (game.cameraPosX/32,game.cameraPosY/32)
         if self.isNight():
-            attempts = 0
-            for i in range( 1 ):
-                pos=(128,128)
-                pathPos = self.pathFinding.surface[ self.corruption.I( pos ) ]
-                while pathPos > 970 or pathPos < 920:
-                    print( pos, pathPos, attempts )
-                    pos = ( random.randrange( 1, game.mapSize[0] - 1 ), random.randrange( 1, game.mapSize[1] - 1 ) )
-                    pathPos = self.pathFinding.surface[ self.corruption.I( pos ) ]
+            if not game.wasNight:
+                self.spawnPoints = [ i for i in range( self.pathFinding.size[0]*self.pathFinding.size[1] ) if self.pathFinding.surface[i] > 940 and self.pathFinding.surface[i] < 980 ]
+                self.toSpawn = int( math.ceil( ( game.baseEnemyAmount + game.enemyPerNight * math.floor( game.clock / game.dayTicks ) ) / game.nightTicks ) )
 
-                    attempts += 1
-                    if attempts > 100:
-                        break
 
-                if pathPos <= 970 and pathPos >= 920:
+            if len( self.spawnPoints ) > 0:
+                print( game.nightTicks )
+                for i in range( self.toSpawn ):
+                    pos = random.choice( self.spawnPoints )
+                    pos = ( pos % self.pathFinding.size[0], int( pos // self.pathFinding.size[0] ) )
+
                     base = gamelogic.enemies.Enemies[ random.choice( tuple( gamelogic.enemies.Enemies.keys() ) ) ]
                     gamelogic.enemies.makeEnemy( self.world, pos, base )
 

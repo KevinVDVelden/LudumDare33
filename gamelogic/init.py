@@ -26,12 +26,12 @@ def init( self ):
     elif self.loadLevel == 19:
         self.world = ecs.World()
 
-        gamelogic.building.makeBuilding( self.world, ( 128, 128 ), gamelogic.building.Buildings['HearthZiggurat'] )
+        gamelogic.building.makeBuilding( self.world, ( 128, 128 ), gamelogic.building.Buildings['HeartZiggurat'] )
 
-        gamelogic.building.makeBuilding( self.world, ( 127, 128 ), gamelogic.building.Buildings['HearthPylon'] )
-        gamelogic.building.makeBuilding( self.world, ( 128, 127 ), gamelogic.building.Buildings['HearthPylon'] )
-        gamelogic.building.makeBuilding( self.world, ( 129, 128 ), gamelogic.building.Buildings['HearthPylon'] )
-        gamelogic.building.makeBuilding( self.world, ( 128, 129 ), gamelogic.building.Buildings['HearthPylon'] )
+        gamelogic.building.makeBuilding( self.world, ( 127, 128 ), gamelogic.building.Buildings['HeartPylon'] )
+        gamelogic.building.makeBuilding( self.world, ( 128, 127 ), gamelogic.building.Buildings['HeartPylon'] )
+        gamelogic.building.makeBuilding( self.world, ( 129, 128 ), gamelogic.building.Buildings['HeartPylon'] )
+        gamelogic.building.makeBuilding( self.world, ( 128, 129 ), gamelogic.building.Buildings['HeartPylon'] )
     elif self.loadLevel > 20:
         gamelogic.centerCameraOnTile( ( 128, 128 ) )
         initGui( self )
@@ -61,6 +61,7 @@ def initGui( self ):
     addBuilding( 'img/buildings/combined/building_metals_0.png', 'Metals ziggurat', setBuildingCb( gamelogic.building.Buildings['MetalsZiggurat_Transform'] ) )
     addBuilding( 'img/buildings/combined/pylon_energy_0.png', 'Energy pylon', setBuildingCb( gamelogic.building.Buildings['EnergyPylon_Transform'] ) )
     addBuilding( 'img/buildings/combined/pylon_metals_0.png', 'Metals pylon', setBuildingCb( gamelogic.building.Buildings['MetalsPylon_Transform'] ) )
+    addBuilding( 'img/buildings/combined/pylon_heart_0.png', 'Pylon', setBuildingCb( gamelogic.building.Buildings['HeartPylon_Transform'] ) )
 
     addBuilding( 'img/buildings/combined/turret_t1_0.png', 'T1 Turret', setBuildingCb( gamelogic.building.Buildings['TurretT1_Transform'] ) )
     addBuilding( 'img/buildings/combined/turret_t2_0.png', 'T2 Turret', setBuildingCb( gamelogic.building.Buildings['TurretT2_Transform'] ) )

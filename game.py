@@ -18,3 +18,11 @@ assets = {}
 fonts = {}
 
 scene = None
+
+dayTicks = 300
+minDayTicks = 100
+baseDayTicks = 200
+dayTicksReductionEvery = 150
+
+baseEnemyAmount = 125
+enemyPerNight = 35

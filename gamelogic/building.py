@@ -53,6 +53,9 @@ class BuildingComponent( ecs.Component ):
                 self.neighbours[ i ] = neighbour.getComponent( ecs.COMPONENT_BUILDING )
                 neighbour.getComponent( ecs.COMPONENT_BUILDING ).registerNewNeighbour( self, BUILDING_REVERSE[ i ] )
 
+        if self.transformTarget is not None:
+            ent.getComponent( ecs.COMPONENT_RESOURCE ).resourceRenderMult = 20
+
         self.setTexture()
 
     def removeFromWorld( self, ent, world ):
@@ -68,7 +71,7 @@ class BuildingComponent( ecs.Component ):
     def canReceive( self, resource, sourceStored ):
         storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE )
 
-        if storage is None or resource not in storage.caps:
+        if storage is None:
             return 0
         else:
             return storage.canReceive( resource, sourceStored )
@@ -94,10 +97,26 @@ class BuildingComponent( ecs.Component ):
                 self.world.removeEntity( ent )
                 makeBuilding( self.world, ent.position, self.transformTarget )
                 return
+            else:
+                for resource in [ key for key in self.transformCost if storage.stored[key] > self.transformCost[key] ]:
+                    storage.stored[resource] = self.transformCost[resource]
+                    storage.caps[resource] = self.transformCost[resource]
+
+            return
 
         for resource in ( 'energy', 'metals' ):
             if resource not in storage.rates:
                 continue
+            if storage.burst[resource] <= 0:
+                continue
+
+            def getStored():
+                stored = storage.stored[resource]
+                if storage.receiveCap[resource] == 0:
+                    stored = -1
+                else:
+                    stored /= storage.caps[resource]
+                return stored
 
             storage.increase( resource, -storage.rates[ resource ] )
 
@@ -106,12 +125,10 @@ class BuildingComponent( ecs.Component ):
             random.shuffle( neighbourI )
 
             for i in neighbourI:
-                stored = storage.stored[resource]
-                if storage.receiveCap[resource] == 0:
-                    stored = -1
+                stored = getStored()
 
-                canReceive = self.neighbours[ i ].canReceive( resource, stored / storage.caps[resource] )
-                if canReceive > 5:
+                canReceive = self.neighbours[ i ].canReceive( resource, stored )
+                if canReceive > 1:
                     send = storage.getBurst( resource, canReceive )
                     if send > 0:
                         self.neighbours[ i ].receive( self, resource, send )
@@ -127,16 +144,14 @@ class BuildingComponent( ecs.Component ):
                 if self.orbOut[ i ]:
                     continue
 
-                stored = storage.stored[resource]
-                if storage.receiveCap[resource] == 0:
-                    stored = 0
+                stored = getStored()
 
                 for dist in range( 10 ):
                     checkPos = ( checkPos[0] + BUILDINGDIRECTION[i][0], checkPos[1] + BUILDINGDIRECTION[i][1] )
 
                     targets = storageComponents.atPosition( checkPos )
                     if len( targets ) > 0:
-                        canReceive = targets[0].getComponent( ecs.COMPONENT_RESOURCE ).canReceive( resource, stored / storage.caps[resource] )
+                        canReceive = targets[0].getComponent( ecs.COMPONENT_RESOURCE ).canReceive( resource, stored )
 
                         if canReceive > 1:
                             send = storage.getBurst( resource, canReceive )
@@ -164,14 +179,14 @@ def makeBuilding( world, pos, config ):
     ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_energy_11.png' ) )
     ent.team = config['team']
 
-    if 'building' in config:
-        ent.addComponent( BuildingComponent( config['building'], config ) )
-
     if 'resources' in config:
         ent.addComponent( gamelogic.resources.ResourceStoreComponent( config['resources'] ) )
 
     if 'health' in config:
         ent.addComponent( ecs.HealthComponent( config['health'] ) )
+
+    if 'building' in config:
+        ent.addComponent( BuildingComponent( config['building'], config ) )
 
     #TODO: Make this a component?
     if 'corrupts' in config:
@@ -216,23 +231,24 @@ Buildings['MetalsPylon'] = { 'building': 'pylon_metals',
                         'health': 100,
                         'team': 0 }
 
-Buildings['HearthZiggurat'] = { 'building': 'building_heart',
+Buildings['HeartZiggurat'] = { 'building': 'building_heart',
                         'resources': { 'energy': ( -25, 50, 50, 0 ), 'metals': ( -25, 50, 50, 0 ) },
                         'corrupts': 3000,
                         'pathImportance': 1000,
                         'health': 100,
                         'team': 0 }
-Buildings['HearthPylon'] = { 'building': 'pylon_heart',
+Buildings['HeartPylon'] = { 'building': 'pylon_heart',
                         'resources': { 'energy': ( 1, 200, 25, 25 ), 'metals': ( 1, 200, 25, 25 ) },
                         'corrupts': 3000,
                         'pathImportance': 1000,
+                        'buildCost': { 'metals': 200, 'energy': 300 },
                         'health': 100,
                         'team': 0 }
 
 Buildings['TurretT1'] = { 'building': 'turret_t1',
                         'resources': { 'energy': ( 0, 200, 0, 25 ) },
                         'pathImportance': 1010,
-                        'attack': { 'range': 3, 'damage': 5, 'attackCooldown': 0.1, 'costs': { 'energy': 5 } },
+                        'attack': { 'range': 3, 'damage': 5, 'attackCooldown': 0.3, 'costs': { 'energy': 15 } },
                         'buildCost': { 'metals': 200, 'energy': 100 },
                         'buildTime': 20,
                         'health': 100,
@@ -240,7 +256,7 @@ Buildings['TurretT1'] = { 'building': 'turret_t1',
 Buildings['TurretT2'] = { 'building': 'turret_t2',
                         'resources': { 'energy': ( 0, 500, 0, 10 ), 'metals': ( 0, 500, 0, 10 ) },
                         'pathImportance': 1010,
-                        'attack': { 'range': 5, 'damage': 20, 'splash': 5, 'costs': { 'energy': 5, 'metals': 10 } },
+                        'attack': { 'range': 5, 'damage': 20, 'splash': 5, 'costs': { 'energy': 25, 'metals': 10 } },
                         'buildCost': { 'metals': 300, 'energy': 150 },
                         'buildTime': 50,
                         'health': 100,
@@ -248,7 +264,7 @@ Buildings['TurretT2'] = { 'building': 'turret_t2',
 
 def MakeBuildingTransform( source, cost, minTime = 10 ):
     ret = { 'transformTarget': source, 'transformCost': cost }
-    ret['resources'] = { key: ( 0, cost[key] + 20, 0, cost[key] / minTime ) for key in cost }
+    ret['resources'] = { key: ( 0, cost[key] * 20, 0, cost[key] / minTime ) for key in cost }
     ret['building'] = source['building']
 
     ret['health'] = source['health']
