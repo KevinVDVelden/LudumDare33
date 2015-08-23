@@ -8,7 +8,6 @@ import util
 import config
 import random
 import ecs
-import flowmap
 import threading
 
 keysPressed = base.frame.keysPressed
@@ -32,8 +31,8 @@ class GameScene( Scene ):
         super().__init__()
 
         self.loadLevel = 0
-        self.changingCorruption = dict()
         self.flowThread = None
+        self.pathThread = None
 
         self.resources = defaultdict( lambda: ( 0, 0, 0 ) )
         self.buildingConfig = None
@@ -68,11 +67,14 @@ class GameScene( Scene ):
             else:
                 for ent in entities:
                     self.world.removeEntity( ent )
-                self.changingCorruption[ self.corruption.I( pos ) ] = 0
+                self.corruption.addSource( pos, 0 )
+                self.pathFinding.addSource( pos, 0 )
         elif event.button == 3:
             i = self.corruption.I( pos )
-            print( self.corruption.surface[ i ], self.corruption.backSurface[ i ] )
-            print( self.corruption.resting[ i ], self.corruption.backResting[ i ] )
+            #print( self.corruption.surface[ i ], self.corruption.backSurface[ i ] )
+            #print( self.corruption.resting[ i ], self.corruption.backResting[ i ] )
+            print( self.pathFinding.surface[ i ], self.pathFinding.weights[ i ] )
+            print( i )
 
     def doInput( self, frameTime ):
         for event in base.frame.receiveInput():
@@ -131,21 +133,28 @@ class GameScene( Scene ):
 
     def doTick( self ):
         self.world.doTick()
-        for ent in self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING ):
-            ent.getComponent( ecs.COMPONENT_BUILDING ).think( ent, self.world )
-
         gamelogic.resources.calculateResources( self )
+
+        #pos = (game.cameraPosX/32,game.cameraPosY/32)
+        pos=(0,0)
+        while (pos[0]-game.cameraPosX/32)**2 + (pos[1]-game.cameraPosY/32)**2 > 100*100:
+            pos = ( random.randrange( 1, game.mapSize[0] - 1 ), random.randrange( 1, game.mapSize[1] - 1 ) )
+
+        ent = self.world.addEntity( pos )
+        ent.addComponent( ecs.RenderComponent( 'img/iron_imp.png' ) )
+        ent.addComponent( gamelogic.enemies.PathWalker( self.pathFinding ) )
+
 
         if self.flowThread is None or not self.flowThread.is_alive():
             self.corruption.swap()
 
-            for n in self.changingCorruption:
-                self.corruption.addSource( n, self.changingCorruption[ n ] )
-
             self.flowThread = threading.Thread( target = lambda: self.corruption.cleanIterative() )
             self.flowThread.start()
-
-            self.changingCorruption = dict()
         else:
             print( 'WARNING: Flow update thread not done on time!' )
-            self.corruption.cleanIterative()
+
+        if self.pathThread is None or not self.pathThread.is_alive():
+            self.pathThread = threading.Thread( target = lambda: self.pathFinding.cleanRecursive() )
+            self.pathThread.start()
+        else:
+            print( 'WARNING: Pathfinding update thread not done on time!' )

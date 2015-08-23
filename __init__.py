@@ -26,7 +26,7 @@ while game.gameIsRunning:
     lastTime = curTime
 
     accumelator += lastFrameTime
-    game.accumelator = accumelator
+    game.accumelator = accumelator / 200
 
     frameTime = lastFrameTime / 1000 #Given in miliseconds, converting it to a float of unit seconds
 

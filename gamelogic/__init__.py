@@ -3,6 +3,7 @@ import gamelogic.init
 import gamelogic.draw
 import gamelogic.resources
 import gamelogic.building
+import gamelogic.enemies
 import random
 import game
 
@@ -11,6 +12,7 @@ BUILDINGDIRECTION = ( ( 0, -1 ), ( 1, 0 ), ( 0, 1 ), ( -1, 0 ) )
 BUILDING_REVERSE = ( 2, 3, 0, 1 )
 
 BUILDING_IMG_FORMAT = 'img/buildings/combined/%s_%d.png'
+ORB_IMG_FORMAT = 'img/buildings/parts/hue_%s.png'
 
 class BuildingComponent( ecs.Component ):
     def __init__( self, buildingType, config ):
@@ -19,6 +21,7 @@ class BuildingComponent( ecs.Component ):
         self.config = config
         self.neighbours = [ None, None, None, None ]
         self.lastDirection = 0
+        self.orbOut = [ False, False, False, False ]
 
     def registerNewNeighbour( self, neighbour, direction ):
         self.neighbours[ direction ] = neighbour
@@ -60,69 +63,88 @@ class BuildingComponent( ecs.Component ):
             neighbour.registerNewNeighbour( None, BUILDING_REVERSE[ i ] )
 
     def canReceive( self, resource, sourceStored ):
-        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE_STORE )
+        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE )
 
         if storage is None or resource not in storage.caps:
             return 0
         else:
-            if sourceStored < 0 or sourceStored > storage.stored[resource]:
-                return storage.caps[resource] - storage.stored[resource]
-            else:
-                #print( 'No taking from the poor!' )
-                return 0
+            return storage.canReceive( resource, sourceStored )
 
     def receive( self, source, resource, amount ):
-        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE_STORE )
+        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE )
 
-        storage.stored[resource] = min( storage.stored[resource] + amount, storage.caps[resource] )
-
-        #print( '%s received from %s %f of %s, now at %d/%d' % ( self, source, amount, resource, storage.stored[resource], storage.caps[resource] ) )
+        storage.receive( source, resource, amount )
 
     def think( self, ent, world ):
         assert self.entity == ent
         assert self.world == world
 
-        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE_STORE )
-        usage = self.entity.getComponent( ecs.COMPONENT_RESOURCE_USER )
+        storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE )
 
-        #print( self, storage, usage )
-        if storage is None and usage is None:
+        storageComponents = world.entitiesWithComponent( ecs.COMPONENT_RESOURCE )
+
+        if storage is None:
             return
 
-        for resource in ( 'mana', 'soul' ):
-            current = 0
-            stored = -1
-
-            if usage is not None and resource in usage.rates:
-                current = -usage.rates[resource] 
-            if storage is not None and resource in storage.stored:
-                stored = storage.stored[resource]
-                burst = min( stored, storage.burst[resource] )
-                storage.stored[resource] -= burst
-                current += burst
-
-            if current < 5:
-                if usage is not None and storage is not None and resource in storage.stored and resource in usage.rates:
-                    storage.stored[resource] += usage.rates[resource]
-                    #print( '%s is storing %d of %s, now at %d/%d' % ( self, usage.rates[resource], resource, storage.stored[resource],storage.caps[resource] ) )
+        for resource in ( 'energy', 'metals' ):
+            if resource not in storage.rates:
                 continue
+
+            storage.increase( resource, -storage.rates[ resource ] )
 
             #Direct neighbours
             neighbourI = list( [ i for i in range( 4 ) if self.neighbours[ i ] is not None ] )
             random.shuffle( neighbourI )
 
             for i in neighbourI:
-                neighbourI.remove( i )
+                stored = storage.stored[resource]
+                if storage.receiveCap[resource] == 0:
+                    stored = -1
 
                 canReceive = self.neighbours[ i ].canReceive( resource, stored )
-                if canReceive > 0:
-                    canReceive = min( canReceive, current )
-                    self.neighbours[ i ].receive( self, resource, canReceive )
-                    current -= canReceive
+                if canReceive > 5:
+                    send = storage.getBurst( resource, canReceive )
+                    if send > 0:
+                        self.neighbours[ i ].receive( self, resource, send )
 
-            if current > 0 and storage is not None and resource in storage.caps:
-                storage.stored[ resource ] += current
+            #Not connected neighbours
+            #TODO: This should really not be working, but it is, I suspect a bug in the neighbour code
+            neighbourI = list( [ BUILDING_REVERSE[i] for i in range( 4 ) if self.neighbours[ i ] is None ] )
+            random.shuffle( neighbourI )
 
+            for i in neighbourI:
+                checkPos = ent.position
+
+                if self.orbOut[ i ]:
+                    continue
+
+                stored = storage.stored[resource]
+                if storage.receiveCap[resource] == 0:
+                    stored = 0
+
+                for dist in range( 10 ):
+                    checkPos = ( checkPos[0] + BUILDINGDIRECTION[i][0], checkPos[1] + BUILDINGDIRECTION[i][1] )
+
+                    targets = storageComponents.atPosition( checkPos )
+                    if len( targets ) > 0:
+                        canReceive = targets[0].getComponent( ecs.COMPONENT_RESOURCE ).canReceive( resource, stored )
+
+                        if canReceive > 5:
+                            send = storage.getBurst( resource, canReceive )
+
+                            def callbackFactory( self, orbDir ):
+                                def cb( orb ):
+                                    self.orbOut[ orbDir ] = False
+                                return cb
+
+
+                            orb = world.addEntity( ent.position )
+                            orb.addComponent( ecs.RenderComponent( ORB_IMG_FORMAT % resource ) )
+                            orb.addComponent( gamelogic.resources.ResourceOrb( BUILDINGDIRECTION[i], resource, send, callbackFactory( self, i ) ) )
+                            self.orbOut[ i ] = True
+                            #print( '%s is sending %d of %s in the direction of %s' % ( self, canReceive, resource, targets[0] ) )
+
+                        break
 
     def __str__( self ):
         return '<Building.%s %d>' % ( self.buildingType, id( self ) )

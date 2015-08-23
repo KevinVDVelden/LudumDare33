@@ -1,3 +1,4 @@
+import smoothflowmap
 import flowmap
 import base
 import widgets
@@ -13,8 +14,8 @@ def init( self ):
         for i in range( len( game.mapBuffer ) ):
             game.mapBuffer[ i ] = 10
 
-        flow = flowmap.Flowmap( game.mapSize )
-        self.corruption = flow
+        self.corruption = smoothflowmap.Flowmap( game.mapSize )
+        self.pathFinding = flowmap.Flowmap( game.mapSize )
     elif self.loadLevel == 10:
         for x in range( 256 ):
             for y in range( 256 ):
@@ -53,10 +54,10 @@ def initGui( self ):
             self.buildingConfig = building
         return cb
 
-    addBuilding( 'img/buildings/combined/building_mana_0.png', 'Mana ziggurat', setBuildingCb( gamelogic.building.manaZiggurat ) )
-    addBuilding( 'img/buildings/combined/building_power_0.png', 'Soul ziggurat', setBuildingCb( gamelogic.building.soulZiggurat ) )
-    addBuilding( 'img/buildings/combined/pylon_mana_0.png', 'Mana pylon', setBuildingCb( gamelogic.building.manaPylon ) )
-    addBuilding( 'img/buildings/combined/pylon_power_0.png', 'Mana pylon', setBuildingCb( gamelogic.building.soulPylon ) )
+    addBuilding( 'img/buildings/combined/building_energy_0.png', 'Energy ziggurat', setBuildingCb( gamelogic.building.energyZiggurat ) )
+    addBuilding( 'img/buildings/combined/building_metals_0.png', 'Metals ziggurat', setBuildingCb( gamelogic.building.metalsZiggurat ) )
+    addBuilding( 'img/buildings/combined/pylon_energy_0.png', 'Energy pylon', setBuildingCb( gamelogic.building.energyPylon ) )
+    addBuilding( 'img/buildings/combined/pylon_metals_0.png', 'Metals pylon', setBuildingCb( gamelogic.building.metalsPylon ) )
 
     #Resources
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar', onTop = True, margin=10 ) )
@@ -68,5 +69,5 @@ def initGui( self ):
         self.widgets[1].addChild( widgets.TextButton, name, rect = rect, drawBackground = False )
         return self.widgets[1].children[-2]
 
-    self.manaWidget = addResource( 'Mana' )
-    self.soulsWidget = addResource( 'Souls' )
+    self.energyWidget = addResource( 'Energy' )
+    self.metalsWidget = addResource( 'Metals' )

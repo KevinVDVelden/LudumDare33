@@ -6,9 +6,8 @@ COMPONENT_RENDER = 1
 COMPONENT_THINK = 2
 COMPONENT_ATTACK = 3
 COMPONENT_BUILDING = 4
-COMPONENT_RESOURCE_USER = 5
-COMPONENT_RESOURCE_STORE = 6
-COMPONENT_MAX = 7
+COMPONENT_RESOURCE = 5
+COMPONENT_MAX = 6
 
 def idToMask( _id ):
     return 1 << ( _id - 1 )
@@ -20,7 +19,8 @@ class RenderComponent:
         self.typeId = COMPONENT_RENDER
 
     def render( self, entity, accumelatorTime ):
-        pos = ( int( entity.position[0] * 32 ) - game.cameraPosX, int( entity.position[1] * 32 ) - game.cameraPosY )
+        pos = ( int( ( entity.position[0] + entity.velocity[0]*accumelatorTime ) * 32 ) - game.cameraPosX,
+                int( ( entity.position[1] + entity.velocity[1]*accumelatorTime ) * 32 ) - game.cameraPosY )
         base.drawing.drawSprite( pos, self.tile )
 
     def setSprite( self, newTile ):
@@ -34,6 +34,7 @@ class Entity:
         self.componentMask = 0
         self.components = list( [ None for n in range( COMPONENT_MAX ) ] )
         self.position = position
+        self.velocity = ( 0, 0 )
         self.world = world
 
     def hasComponent( self, compId ):
@@ -55,6 +56,12 @@ class Entity:
             if hasattr( comp, 'removeFromWorld' ):
                 comp.removeFromWorld( self, self.world )
 
+    def __str__( self ):
+        return '<Entity %d at %s>' % ( id(self), str( self.position ) )
+
+    def __repr__( self ):
+        return '<Entity %d at %s>' % ( id(self), str( self.position ) )
+
 class EntityList( list ):
     def __init__( self, world, *args, **kargs ):
         super().__init__( *args, **kargs )
@@ -72,10 +79,15 @@ class World:
         self.isDirty = True
 
     def doTick( self ):
-        pass
+        thinkComponents = ( COMPONENT_BUILDING, COMPONENT_THINK )
+
+        for componentType in thinkComponents:
+            for ent in self.entitiesWithComponent( componentType ):
+                ent.components[ componentType ].think( ent, self )
+
 
     def doFrame( self, frameTime, accumelatorTime ):
-        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE_STORE )
+        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE )
 
         for componentType in renderComponents:
             for ent in self.entitiesWithComponent( componentType ):
