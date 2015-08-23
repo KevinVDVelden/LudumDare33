@@ -3,6 +3,7 @@ import random
 import pygame
 import game
 import gamelogic
+import random
 
 class PathWalker( ecs.Component ):
     def __init__( self, pathMap, move ):
@@ -37,7 +38,7 @@ class PathWalker( ecs.Component ):
                     continue
 
                 testIndex = index + self.pathMap.offsets[i]
-                testVal = self.pathMap.surface[ testIndex ]
+                testVal = self.pathMap.surface[ testIndex ] + random.uniform( -.3, .3 )
                 ticks = self.moveFast if i < 4 else self.moveSlow
 
                 if testVal > bestVal:
@@ -74,6 +75,10 @@ class AttackComponent( ecs.Component ):
         if curEnt.team != 0:
             if not game.isNight:
                 curEnt.getComponent( ecs.COMPONENT_HEALTH ).takeDamage( random.random() )
+        else:
+            if not game.isNight:
+                curEnt.getComponent( ecs.COMPONENT_HEALTH ).takeDamage( -5 )
+
 
         if self.costs is None:
             storage = None
@@ -112,7 +117,7 @@ class AttackComponent( ecs.Component ):
                 self.target = None
 
         entities = list( world.entsInRect( pygame.Rect( curEnt.position[0] - self.range, curEnt.position[1] - self.range, self.range * 2, self.range * 2 ) ) )
-        entities.sort( key=lambda target: ( target.position[0] - curEnt.position[0] ) ** 2 + ( target.position[1] - curEnt.position[1] ) ** 2 )
+        entities.sort( key=lambda target: -( ( target.position[0] - curEnt.position[0] ) ** 2 + ( target.position[1] - curEnt.position[1] ) ** 2 ) )
 
         for ent in entities:
             if ent.hasComponent( ecs.COMPONENT_HEALTH ) == False:
@@ -142,15 +147,39 @@ def makeEnemy( world, pos, config ):
 
 Enemies = {}
 
-Enemies['Imp'] = {
+Enemies['White'] = {
                     'pathfinder': { 'path': 'default', 'move': ( 2, 3 ) },
-                    'attack': { 'range': 1, 'damage': 5, 'splash': 5 },
-                    'render': 'img/iron_imp.png',
+                    'attack': { 'range': 1, 'damage': 5 },
+                    'render': 'img/enemies/combined/enemy_white.png',
                     'health': 30,
-                    'team': 1 }
-Enemies['Imp2'] = {
+                    'team': 1,
+                    'value': 1 }
+Enemies['Gray'] = {
                     'pathfinder': { 'path': 'default', 'move': ( 4, 5 ) },
                     'attack': { 'range': 1, 'damage': 8 },
-                    'render': 'img/second_imp.png',
+                    'render': 'img/enemies/combined/enemy_gray.png',
                     'health': 60,
-                    'team': 1 }
+                    'team': 1,
+                    'value': 1 }
+
+Enemies['RedShirt1'] = {
+                    'pathfinder': { 'path': 'default', 'move': ( 2, 3 ) },
+                    'attack': { 'range': 3, 'damage': 5 },
+                    'render': 'img/enemies/combined/enemy_redshirt1.png',
+                    'health': 30,
+                    'team': 1,
+                    'value': 3 }
+Enemies['RedShirt2'] = {
+                    'pathfinder': { 'path': 'default', 'move': ( 1, 2 ) },
+                    'attack': { 'range': 2, 'damage': 8 },
+                    'render': 'img/enemies/combined/enemy_redshirt2.png',
+                    'health': 40,
+                    'team': 1,
+                    'value': 5 }
+Enemies['RedShirt3'] = {
+                    'pathfinder': { 'path': 'default', 'move': ( 4, 5 ) },
+                    'attack': { 'range': 6, 'damage': 4 },
+                    'render': 'img/enemies/combined/enemy_redshirt3.png',
+                    'health': 80,
+                    'team': 1,
+                    'value': 7 }

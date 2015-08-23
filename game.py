@@ -22,7 +22,8 @@ scene = None
 dayTicks = 300
 minDayTicks = 100
 baseDayTicks = 200
-dayTicksReductionEvery = 150
+dayTicksReductionEvery = 100
 
-baseEnemyAmount = 125
-enemyPerNight = 35
+baseEnemyAmount = 75
+enemyPerNight = 50
+enemyPerNightPower = 1.5

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="297mm"
+   height="210mm"
+   viewBox="0 0 1052.3622 744.09448"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="readme.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="815.07953"
+     inkscape:cy="200.56641"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="987"
+     inkscape:window-x="2992"
+     inkscape:window-y="397"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Laag 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-308.26772)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="491.42856"
+       y="489.50507"
+       id="text3336"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3338"
+         x="491.42856"
+         y="489.50507"></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="180"
+       y="320.93362"
+       id="text3390"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3392"
+         x="180"
+         y="320.93362"></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="168.57143"
+       y="376.64792"
+       id="text3444"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3446"
+         x="168.57143"
+         y="376.64792"
+         style="font-size:60px">Welcome to Self Defense!</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="14.285714"
+       y="513.79077"
+       id="text3448"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3450"
+         x="14.285714"
+         y="513.79077"
+         style="font-size:22.5px">This is an entry for the Ludum Dare 33 compo.</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="541.91577"
+         id="tspan3452"
+         style="font-size:22.5px">Made by Kevin van der Velden.</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="570.04077"
+         style="font-size:22.5px"
+         id="tspan3497" /><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="598.16577"
+         style="font-size:22.5px"
+         id="tspan3499">The game is made with:</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="626.29077"
+         style="font-size:22.5px"
+         id="tspan3501" /><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="654.41577"
+         style="font-size:22.5px"
+         id="tspan3503">- Python (3.4)</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="682.54077"
+         style="font-size:22.5px"
+         id="tspan3505">- PyGame</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="710.66577"
+         style="font-size:22.5px"
+         id="tspan3507">- Numpy</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="738.79077"
+         style="font-size:22.5px"
+         id="tspan3509" /><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="766.91577"
+         style="font-size:22.5px"
+         id="tspan3513">&quot;Art&quot; was made using a combination of ImageMagick, Spartan and Paint.NET.</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="795.04077"
+         style="font-size:22.5px"
+         id="tspan3736">Excepting the font, which was downloaded from: </tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="823.16577"
+         style="font-size:22.5px"
+         id="tspan3738">http://opengameart.org/content/kenney-fonts</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="851.29077"
+         style="font-size:22.5px"
+         id="tspan3517" /><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="879.41577"
+         style="font-size:22.5px"
+         id="tspan3519">There is much that I want to add, and I might do so in a later release.</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="907.54077"
+         style="font-size:22.5px"
+         id="tspan3521">Code is available for download at https://github.com/KevinVDVelden/LudumDare33</tspan><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="935.66577"
+         style="font-size:22.5px"
+         id="tspan3523" /><tspan
+         sodipodi:role="line"
+         x="14.285714"
+         y="963.79077"
+         style="font-size:22.5px"
+         id="tspan3525" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="12.857143"
+       y="556.64795"
+       id="text3454"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="12.857143"
+         y="556.64795"
+         style="font-size:20px"
+         id="tspan3468" /></text>
+  </g>
+</svg>

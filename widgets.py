@@ -7,7 +7,7 @@ class Widget:
         if 'layoutFunc' in kargs:
             self.rect = kargs['layoutFunc']( self )
         else:
-            self.rect = rect
+            self.rect = rect.copy()
         self.children = []
 
         self.isDirty = True

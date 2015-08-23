@@ -1,6 +1,8 @@
 import ecs
 import pygame
 import game
+import base.drawing
+import random
 
 class Component:
     def __init__( self, typeId ):
@@ -20,12 +22,15 @@ class HealthComponent( Component ):
         self.health -= damage
 
         if self.health < 0:
-            #TODO: Splat
-            print( 'SPLAT', self.entity )
+            pos = self.entity.position
+            pos = ( pos[0] + random.random() - 0.5, pos[1] + random.random() - 0.5 )
+            base.drawing.drawMap( pos, game.assets[ 'img/blood_%d.png' % random.randrange( 1, 4 ) ] )
             self.world.removeEntity( self.entity )
+        elif self.health > self.maxHealth:
+            self.health = self.maxHealth
 
     def render( self, ent, accumelator ):
-        if self.health == self.maxHealth:
+        if self.health >= self.maxHealth:
             return
 
         light = ( 244, 7, 7 )

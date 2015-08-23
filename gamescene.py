@@ -10,6 +10,7 @@ import random
 import ecs
 import threading
 import math
+import widgets
 
 keysPressed = base.frame.keysPressed
 
@@ -44,6 +45,9 @@ class GameScene( Scene ):
         game.clock = 0
         game.wasNight = False
         game.isNight = False
+        game.isOver = False
+        game.spawnedTotal = 0
+        self.spawned = 0
 
     def isNight( self ):
         game.nightTicks = game.dayTicks - max( game.minDayTicks, game.baseDayTicks - ( game.clock / game.dayTicksReductionEvery ) )
@@ -126,41 +130,87 @@ class GameScene( Scene ):
         self.world.doFrame( frameTime, game.accumelator )
         gamelogic.draw.drawGui( self, frameTime, game.accumelator )
 
+    def showGameover( self ):
+        pos = ( (game.SCREEN_SIZE[0]-320)/2, (game.SCREEN_SIZE[1]-600)/2 )
+        self.widgets.append( widgets.Icon( pygame.Rect( pos[0], pos[1], 320, 600 ), game.assets['img/gameover.png'] ) )
+
+        pos = ( pos[0]+10, pos[1]+10 )
+        rect = pygame.Rect( pos[0], pos[1],300, 40 )
+        self.widgets.append( widgets.Text( rect, 'Game over!', font='gameover1' ) )
+
+        pollution = len([i for i in range(game.corruption.size[0]*game.corruption.size[1]) if game.corruption.surface[i] > 1])
+
+        rect.top += 50
+        self.widgets.append( widgets.Text( rect, 'You survived %d nights.' % int( game.clock / game.dayTicks ), font='gameover2' ) )
+        rect.top += 50
+        self.widgets.append( widgets.Text( rect, 'You killed %d defenseless people.' % game.spawnedTotal, font='gameover2' ) )
+        rect.top += 50
+        self.widgets.append( widgets.Text( rect, 'You destroyed %d acres of land.' % pollution, font='gameover2' ) )
+        rect.top += 50
+        self.widgets.append( widgets.Text( rect, 'And why?', font='gameover3' ) )
+        rect.top += 50
+        self.widgets.append( widgets.Text( rect, 'They were only defending themselves.', font='gameover2' ) )
+        rect.top += 100
+        def quitCb( *_ ):
+            game.gameIsRunning = False
+        self.widgets.append( widgets.TextButton( rect, 'Exit.', font='gameover3', callback=quitCb ) )
+
     def doTick( self ):
         game.clock += 1
         game.wasNight = game.isNight
         game.isNight = self.isNight()
 
+        buildings = tuple( self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING ) )
+        if len( buildings ) == 0:
+            if not game.isOver:
+                self.showGameover()
+                game.isOver = True
+        else:
+            building = random.choice( buildings )
+            i = game.corruption.I( building.position )
+            if i in game.corruption.sources:
+                game.corruption.addSource( i, game.corruption.sources[i] * 1.1 )
+
         self.world.sortEntities()
         self.world.doTick()
         gamelogic.resources.calculateResources( self )
+
+
 
         #pos = (game.cameraPosX/32,game.cameraPosY/32)
         if self.isNight():
             if not game.wasNight:
                 self.spawnPoints = [ i for i in range( self.pathFinding.size[0]*self.pathFinding.size[1] ) if self.pathFinding.surface[i] > 940 and self.pathFinding.surface[i] < 980 ]
-                self.toSpawn = int( math.ceil( ( game.baseEnemyAmount + game.enemyPerNight * math.floor( game.clock / game.dayTicks ) ) / game.nightTicks ) )
+                self.toSpawn = int( math.floor( ( game.baseEnemyAmount + game.enemyPerNight * math.pow( math.floor( game.clock / game.dayTicks ), game.enemyPerNightPower ) ) ) )
+                self.perTick = int( math.ceil( self.toSpawn / game.nightTicks ) ) + 1
+
+                print( self.toSpawn, self.perTick, self.spawned )
+                self.spawned = 0
 
 
             if len( self.spawnPoints ) > 0:
-                print( game.nightTicks )
-                for i in range( self.toSpawn ):
+                i = 0
+                while i < self.perTick and self.spawned < self.toSpawn:
                     pos = random.choice( self.spawnPoints )
                     pos = ( pos % self.pathFinding.size[0], int( pos // self.pathFinding.size[0] ) )
 
                     base = gamelogic.enemies.Enemies[ random.choice( tuple( gamelogic.enemies.Enemies.keys() ) ) ]
                     gamelogic.enemies.makeEnemy( self.world, pos, base )
 
+                    i += base['value']
+                    self.spawned += base['value']
+                    game.spawnedTotal += 1
+
         if self.flowThread is None or not self.flowThread.is_alive():
             self.corruption.swap()
 
             self.flowThread = threading.Thread( target = lambda: self.corruption.cleanIterative() )
             self.flowThread.start()
-        else:
-            print( 'WARNING: Flow update thread not done on time!' )
+        #else:
+        #    print( 'WARNING: Flow update thread not done on time!' )
 
         if self.pathThread is None or not self.pathThread.is_alive():
             self.pathThread = threading.Thread( target = lambda: self.pathFinding.cleanRecursive() )
             self.pathThread.start()
-        else:
-            print( 'WARNING: Pathfinding update thread not done on time!' )
+        #else:
+        #    print( 'WARNING: Pathfinding update thread not done on time!' )
