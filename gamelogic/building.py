@@ -62,6 +62,8 @@ class BuildingComponent( ecs.Component ):
                 continue
 
             neighbour.registerNewNeighbour( None, BUILDING_REVERSE[ i ] )
+        game.corruption.addSource( ent.position, 0 )
+        game.pathFinding.addSource( ent.position, 0 )
 
     def canReceive( self, resource, sourceStored ):
         storage = self.entity.getComponent( ecs.COMPONENT_RESOURCE )
@@ -160,12 +162,16 @@ class BuildingComponent( ecs.Component ):
 def makeBuilding( world, pos, config ):
     ent = world.addEntity( pos )
     ent.addComponent( ecs.RenderComponent( 'img/buildings/combined/building_energy_11.png' ) )
+    ent.team = config['team']
 
     if 'building' in config:
         ent.addComponent( BuildingComponent( config['building'], config ) )
 
     if 'resources' in config:
         ent.addComponent( gamelogic.resources.ResourceStoreComponent( config['resources'] ) )
+
+    if 'health' in config:
+        ent.addComponent( ecs.HealthComponent( config['health'] ) )
 
     #TODO: Make this a component?
     if 'corrupts' in config:
@@ -184,52 +190,69 @@ Buildings['EnergyZiggurat'] = { 'building': 'building_energy',
                         'resources': { 'energy': ( -10, 20, 20, 0 ) },
                         'corrupts': 1000,
                         'pathImportance': 1000,
-                        'buildCost': { 'metals': 100, 'energy': 2000 } }
+                        'buildCost': { 'metals': 100, 'energy': 2000 },
+                        'health': 100,
+                        'team': 0 }
 Buildings['EnergyPylon'] = { 'building': 'pylon_energy',
                         'resources': { 'energy': ( 1, 200, 25, 25 ) },
                         'corrupts': 100,
                         'pathImportance': 1000,
-                        'buildCost': { 'metals': 50, 'energy': 200 } }
+                        'buildCost': { 'metals': 50, 'energy': 200 },
+                        'health': 100,
+                        'team': 0 }
 
 Buildings['MetalsZiggurat'] = { 'building': 'building_metals',
                         'resources': { 'metals': ( -10, 20, 10, 0 ) },
                         'corrupts': 2000,
                         'pathImportance': 1000,
-                        'buildCost': { 'metals': 500, 'energy': 200 } }
+                        'buildCost': { 'metals': 500, 'energy': 200 },
+                        'health': 100,
+                        'team': 0 }
 Buildings['MetalsPylon'] = { 'building': 'pylon_metals',
                         'resources': { 'metals': ( 1, 200, 25, 25 ) },
                         'corrupts': 300,
                         'pathImportance': 1000,
-                        'buildCost': { 'metals': 100, 'energy': 20 } }
+                        'buildCost': { 'metals': 100, 'energy': 20 },
+                        'health': 100,
+                        'team': 0 }
 
 Buildings['HearthZiggurat'] = { 'building': 'building_heart',
                         'resources': { 'energy': ( -25, 50, 50, 0 ), 'metals': ( -25, 50, 50, 0 ) },
                         'corrupts': 3000,
                         'pathImportance': 1000,
-                        }
+                        'health': 100,
+                        'team': 0 }
 Buildings['HearthPylon'] = { 'building': 'pylon_heart',
                         'resources': { 'energy': ( 1, 200, 25, 25 ), 'metals': ( 1, 200, 25, 25 ) },
                         'corrupts': 3000,
                         'pathImportance': 1000,
-                        }
+                        'health': 100,
+                        'team': 0 }
 
 Buildings['TurretT1'] = { 'building': 'turret_t1',
                         'resources': { 'energy': ( 0, 200, 0, 25 ) },
                         'pathImportance': 1010,
                         'attack': { 'range': 3, 'damage': 5, 'attackCooldown': 0.1, 'costs': { 'energy': 5 } },
                         'buildCost': { 'metals': 200, 'energy': 100 },
-                        'buildTime': 20 }
+                        'buildTime': 20,
+                        'health': 100,
+                        'team': 0 }
 Buildings['TurretT2'] = { 'building': 'turret_t2',
                         'resources': { 'energy': ( 0, 500, 0, 10 ), 'metals': ( 0, 500, 0, 10 ) },
                         'pathImportance': 1010,
                         'attack': { 'range': 5, 'damage': 20, 'splash': 5, 'costs': { 'energy': 5, 'metals': 10 } },
                         'buildCost': { 'metals': 300, 'energy': 150 },
-                        'buildTime': 50}
+                        'buildTime': 50,
+                        'health': 100,
+                        'team': 0 }
 
 def MakeBuildingTransform( source, cost, minTime = 10 ):
     ret = { 'transformTarget': source, 'transformCost': cost }
     ret['resources'] = { key: ( 0, cost[key] + 20, 0, cost[key] / minTime ) for key in cost }
     ret['building'] = source['building']
+
+    ret['health'] = source['health']
+    ret['team'] = source['team']
 
     return ret
 

@@ -1,12 +1,17 @@
 import ecs
 import random
 import pygame
+import game
+import gamelogic
 
 class PathWalker( ecs.Component ):
-    def __init__( self, pathMap ):
+    def __init__( self, pathMap, move ):
         self.pathMap = pathMap
         self.ticksTillTarget = 0
         super().__init__( ecs.COMPONENT_THINK )
+
+        self.moveFast = move[0]
+        self.moveSlow = move[1]
 
     def setEntity( self, ent, world ):
         self.target = ent.position
@@ -33,7 +38,7 @@ class PathWalker( ecs.Component ):
 
                 testIndex = index + self.pathMap.offsets[i]
                 testVal = self.pathMap.surface[ testIndex ]
-                ticks = 2 if i < 4 else 3
+                ticks = self.moveFast if i < 4 else self.moveSlow
 
                 if testVal > bestVal:
                     bestDir = self.pathMap.directions[i]
@@ -63,19 +68,19 @@ class AttackComponent( ecs.Component ):
     def doAttack( self, target, targetHealth, world ):
         targetHealth.takeDamage( self.damage )
 
-    def think( self, ent, world ):
+    def think( self, curEnt, world ):
         self.attackCurCooldown = max( 0, self.attackCurCooldown - 1 )
 
         if self.costs is None:
             storage = None
         else:
-            storage = ent.getComponent( ecs.COMPONENT_RESOURCE )
+            storage = curEnt.getComponent( ecs.COMPONENT_RESOURCE )
             if storage is None:
                 return
 
         #Return true if we can't attack the target due it either being dead or out of range
         def attackTarget( target ):
-            if ( target.position[0] - ent.position[0] ) ** 2 + ( target.position[1] - ent.position[1] ) ** 2 > self.range ** 2 or target.getComponent( ecs.COMPONENT_HEALTH ).health < 0:
+            if ( target.position[0] - curEnt.position[0] ) ** 2 + ( target.position[1] - curEnt.position[1] ) ** 2 > self.range ** 2 or target.getComponent( ecs.COMPONENT_HEALTH ).health < 0:
                 return True
 
             while True:
@@ -102,14 +107,46 @@ class AttackComponent( ecs.Component ):
             if attackTarget( self.target ):
                 self.target = None
 
-        entities = list( world.entsInRect( pygame.Rect( ent.position[0] - self.range, ent.position[1] - self.range, self.range * 2, self.range * 2 ) ) )
-        entities.sort( key=lambda target: ( target.position[0] - ent.position[0] ) ** 2 + ( target.position[1] - ent.position[1] ) ** 2 )
+        entities = list( world.entsInRect( pygame.Rect( curEnt.position[0] - self.range, curEnt.position[1] - self.range, self.range * 2, self.range * 2 ) ) )
+        entities.sort( key=lambda target: ( target.position[0] - curEnt.position[0] ) ** 2 + ( target.position[1] - curEnt.position[1] ) ** 2 )
 
         for ent in entities:
             if ent.hasComponent( ecs.COMPONENT_HEALTH ) == False:
+                continue
+            elif ent.team == curEnt.team:
                 continue
 
             if attackTarget( ent ) == False:
                 self.target = ent
 
+def makeEnemy( world, pos, config ):
+    ent = world.addEntity( pos )
+    ent.addComponent( ecs.RenderComponent( config['render'] ) )
+    ent.team = config['team']
 
+    if 'pathfinder' in config:
+        _map = game.pathFinding if 'path' in config['pathfinder'] else None
+        move = config['pathfinder']['move'] if 'move' in config['pathfinder'] else ( 2,3 )
+        ent.addComponent( PathWalker( _map, move ) )
+
+    if 'health' in config:
+        ent.addComponent( ecs.HealthComponent( config['health'] ) )
+
+    if 'attack' in config:
+        ent.addComponent( gamelogic.enemies.AttackComponent( config['attack'] ) )
+
+
+Enemies = {}
+
+Enemies['Imp'] = {
+                    'pathfinder': { 'path': 'default', 'move': ( 2, 3 ) },
+                    'attack': { 'range': 1, 'damage': 5, 'splash': 5 },
+                    'render': 'img/iron_imp.png',
+                    'health': 10,
+                    'team': 1 }
+Enemies['Imp2'] = {
+                    'pathfinder': { 'path': 'default', 'move': ( 4, 5 ) },
+                    'attack': { 'range': 1, 'damage': 8 },
+                    'render': 'img/second_imp.png',
+                    'health': 20,
+                    'team': 1 }

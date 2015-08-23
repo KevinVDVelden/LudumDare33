@@ -67,8 +67,6 @@ class GameScene( Scene ):
             else:
                 for ent in entities:
                     self.world.removeEntity( ent )
-                self.corruption.addSource( pos, 0 )
-                self.pathFinding.addSource( pos, 0 )
         elif event.button == 3:
             i = self.corruption.I( pos )
             #print( self.corruption.surface[ i ], self.corruption.backSurface[ i ] )
@@ -138,14 +136,11 @@ class GameScene( Scene ):
 
         #pos = (game.cameraPosX/32,game.cameraPosY/32)
         pos=(0,0)
-        while (pos[0]-game.cameraPosX/32)**2 + (pos[1]-game.cameraPosY/32)**2 > 100*100:
+        while (pos[0]-game.cameraPosX/32)**2 + (pos[1]-game.cameraPosY/32)**2 > 50**2:
             pos = ( random.randrange( 1, game.mapSize[0] - 1 ), random.randrange( 1, game.mapSize[1] - 1 ) )
 
-        ent = self.world.addEntity( pos )
-        ent.addComponent( ecs.RenderComponent( 'img/iron_imp.png' ) )
-        ent.addComponent( gamelogic.enemies.PathWalker( self.pathFinding ) )
-        ent.addComponent( ecs.HealthComponent( 20 ) )
-
+        base = gamelogic.enemies.Enemies[ random.choice( tuple( gamelogic.enemies.Enemies.keys() ) ) ]
+        gamelogic.enemies.makeEnemy( self.world, pos, base )
 
         if self.flowThread is None or not self.flowThread.is_alive():
             self.corruption.swap()
