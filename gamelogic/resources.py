@@ -50,6 +50,9 @@ class ResourceStoreComponent( ecs.Component ):
 
         offset = 0
         for resource in self.caps:
+            if self.receiveCap[resource] <= 0:
+                continue
+
             rect = pygame.Rect( ( ent.position[0] * 32 ) - game.cameraPosX, ( ent.position[1] * 32 ) - game.cameraPosY + offset, 32, 6 )
             game.screen.fill( resourceColorsDark[ resource ], rect = rect )
 
@@ -75,6 +78,13 @@ class ResourceStoreComponent( ecs.Component ):
 
     def increase( self, resource, amount ):
         self.stored[resource] = min( self.stored[resource] + amount, self.caps[resource] )
+
+    def hasResources( self, resources ):
+        return not any( [ self.stored[resource] < resources[resource] for resource in resources ] )
+
+    def takeResources( self, resources ):
+        for resource in resources:
+            self.stored[ resource ] -= resources[ resource ]
 
     def getBurst( self, resource, cap ):
         if cap > self.burst[ resource ]:

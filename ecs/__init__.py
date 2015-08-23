@@ -2,13 +2,15 @@ import game
 import base.drawing
 import bisect
 from functools import lru_cache
+from ecs.components import *
 
 COMPONENT_RENDER = 1
 COMPONENT_THINK = 2
 COMPONENT_ATTACK = 3
 COMPONENT_BUILDING = 4
 COMPONENT_RESOURCE = 5
-COMPONENT_MAX = 6
+COMPONENT_HEALTH = 6
+COMPONENT_MAX = 7
 
 def idToMask( _id ):
     return 1 << ( _id - 1 )
@@ -86,7 +88,7 @@ class World:
         self.isDirty = True
 
     def doTick( self ):
-        thinkComponents = ( COMPONENT_BUILDING, COMPONENT_THINK )
+        thinkComponents = ( COMPONENT_BUILDING, COMPONENT_THINK, COMPONENT_ATTACK )
 
         for componentType in thinkComponents:
             for ent in self.entitiesWithComponent( componentType ):
@@ -102,7 +104,10 @@ class World:
 
     def removeEntity( self, ent ):
         self.isDirty = True
-        self.entities.remove( ent )
+        try:
+            self.entities.remove( ent )
+        except ValueError:
+            pass
 
         ent.removeFromWorld()
 
@@ -147,13 +152,3 @@ class World:
 
         self.positionEntsY = tuple( sorted( self.entities, key=lambda n: n.position[1] ) )
         self.positionListY = tuple( [ ent.position[1] for ent in self.positionEntsY ] )
-
-
-class Component:
-    def __init__( self, typeId ):
-        self.typeId = typeId
-
-    def setEntity( self, ent, world ):
-        self.entity = ent
-        self.world = world
-

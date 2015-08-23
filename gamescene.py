@@ -144,6 +144,7 @@ class GameScene( Scene ):
         ent = self.world.addEntity( pos )
         ent.addComponent( ecs.RenderComponent( 'img/iron_imp.png' ) )
         ent.addComponent( gamelogic.enemies.PathWalker( self.pathFinding ) )
+        ent.addComponent( ecs.HealthComponent( 20 ) )
 
 
         if self.flowThread is None or not self.flowThread.is_alive():
