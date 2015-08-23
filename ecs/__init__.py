@@ -96,7 +96,7 @@ class World:
 
 
     def doFrame( self, frameTime, accumelatorTime ):
-        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE, COMPONENT_HEALTH )
+        renderComponents = ( COMPONENT_RENDER, COMPONENT_RESOURCE, COMPONENT_HEALTH, COMPONENT_BUILDING )
 
         for componentType in renderComponents:
             for ent in self.entitiesWithComponent( componentType ):

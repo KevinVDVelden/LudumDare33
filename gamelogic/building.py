@@ -3,6 +3,7 @@ import gamelogic
 import pygame
 import random
 import game
+import base
 
 global BUILDINGDIRECTION
 BUILDINGDIRECTION = ( ( 0, -1 ), ( 1, 0 ), ( 0, 1 ), ( -1, 0 ) )
@@ -36,6 +37,12 @@ class BuildingComponent( ecs.Component ):
 
         newSprite = BUILDING_IMG_FORMAT % ( self.buildingType, mask ) 
         self.entity.getComponent( ecs.COMPONENT_RENDER ).setSprite( newSprite )
+
+    def render( self, entity, accumelatorTime ):
+        if self.transformTarget is not None:
+            pos = ( int( ( entity.position[0] ) * 32 ) - game.cameraPosX,
+                    int( ( entity.position[1] ) * 32 ) - game.cameraPosY )
+            base.drawing.drawSprite( pos, game.assets[ 'img/progress.png' ] )
 
     def setEntity( self, ent, world ):
         super().setEntity( ent, world )
