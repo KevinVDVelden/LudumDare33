@@ -17,8 +17,9 @@ lastTime = pygame.time.get_ticks() - 1
 from mainmenu import *
 game.scene = MainMenu()
 
-game.fonts['menu'] = pygame.font.Font( 'fonts/OpenScrawl_v1.ttf', 48 )
-game.fonts['description'] = pygame.font.Font( 'fonts/OpenScrawl_v1.ttf', 12 )
+game.fonts['menu'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 48 )
+game.fonts['resources'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 16 )
+game.fonts['description'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 12 )
 
 while game.gameIsRunning:
     curTime = pygame.time.get_ticks()
