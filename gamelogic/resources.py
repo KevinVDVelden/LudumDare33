@@ -77,7 +77,10 @@ class ResourceStoreComponent( ecs.Component ):
         assert amount > 0
 
     def increase( self, resource, amount ):
-        self.stored[resource] = min( self.stored[resource] + amount, self.caps[resource] )
+        try:
+            self.stored[resource] = min( self.stored[resource] + amount, self.caps[resource] )
+        except KeyError:
+            pass
 
     def hasResources( self, resources ):
         return not any( [ self.stored[resource] < resources[resource] for resource in resources ] )

@@ -63,7 +63,7 @@ class GameScene( Scene ):
             entities = self.world.entitiesWithComponent( ecs.COMPONENT_BUILDING ).atPosition( pos )
             if len( entities ) == 0:
                 if not self.buildingConfig is None:
-                    gamelogic.building.makeBuilding( self, pos, self.buildingConfig )
+                    gamelogic.building.makeBuilding( self.world, pos, self.buildingConfig )
             else:
                 for ent in entities:
                     self.world.removeEntity( ent )
