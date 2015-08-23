@@ -284,6 +284,3 @@ for key in tuple( Buildings.keys() ):
 
     if 'buildCost' in building:
         Buildings[key + '_Transform'] = MakeBuildingTransform( building, building['buildCost'], building['buildTime'] if 'buildTime' in building else 10 )
-
-print( tuple( Buildings.keys() ) )
-print( Buildings )

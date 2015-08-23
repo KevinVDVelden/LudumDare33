@@ -5,6 +5,11 @@ def drawSprite( pos, sprite ):
     game.screen.blit( sprite, pos )
 
 def initMap( mapSize ):
+    game.mapSurface = None
+    game.mapSize = None
+    game.mapBuffer = None
+
+
     game.mapSurface = (
             pygame.Surface( ( mapSize[0] * 32, mapSize[1] * 32 ) ),
             pygame.Surface( ( mapSize[0] * 32, mapSize[1] * 32 ) ),

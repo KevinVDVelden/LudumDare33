@@ -54,6 +54,7 @@ class GameScene( Scene ):
         self.spawned = 0
         
         self.checkedTrees = 0
+        game.isPaused = False
 
     def isNight( self ):
         game.nightTicks = game.dayTicks - max( game.minDayTicks, game.baseDayTicks - ( game.clock / game.dayTicksReductionEvery ) )
@@ -75,8 +76,6 @@ class GameScene( Scene ):
             i = self.corruption.I( pos )
             #print( self.corruption.surface[ i ], self.corruption.backSurface[ i ] )
             #print( self.corruption.resting[ i ], self.corruption.backResting[ i ] )
-            print( self.pathFinding.surface[ i ], self.pathFinding.weights[ i ] )
-            print( i )
 
     def doInput( self, frameTime ):
         for event in base.frame.receiveInput():
@@ -89,6 +88,16 @@ class GameScene( Scene ):
 
                 if handled:
                     continue
+            elif event.type == pygame.KEYDOWN:
+                if event.key >= ord('1') and event.key < ord('9'):
+                    try:
+                        button = self.widgets[0].children[ ( event.key-ord('1') ) * 3 ]
+                        button.callback( button )
+                    except IndexError:
+                        pass
+                elif event.key == pygame.K_ESCAPE:
+                    self.showGamePause()
+
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mapPosition = ( game.cameraPosX + event.pos[0], game.cameraPosY  + event.pos[1] )
@@ -134,6 +143,8 @@ class GameScene( Scene ):
         base.drawing.renderMap( ( int( game.cameraPosX ), int( game.cameraPosY ) ) )
 
     def doFrame( self, frameTime ):
+        super().doFrame( frameTime )
+
         self.doInput( frameTime )
         self.drawGame( frameTime )
         self.world.doFrame( frameTime, game.accumelator )
@@ -151,6 +162,45 @@ class GameScene( Scene ):
                 cur = game.mapBuffer[ i ] & 96
                 if cur > 0:
                     base.drawing.drawMap( 2, pos, game.RenderTiles[ cur ] )
+
+    def showGamePause( self ):
+        if game.isPaused:
+            #Hiding menu
+            game.isPaused = False
+
+            for n in self.pausedWidgets:
+                self.widgets.remove( n )
+
+            self.pausedWidgets = None
+        else:
+            self.pausedWidgets = []
+            pos = ( (game.SCREEN_SIZE[0]-320)/2, (game.SCREEN_SIZE[1]-600)/2 )
+            self.pausedWidgets.append( widgets.Icon( pygame.Rect( pos[0], pos[1], 320, 600 ), game.assets['img/gameover.png'] ) )
+
+            pos = ( pos[0]+10, pos[1]+10 )
+            rect = pygame.Rect( pos[0], pos[1],300, 40 )
+            self.pausedWidgets.append( widgets.Text( rect, 'Paused.', font='gameover1' ) )
+
+            pollution = len([i for i in range(game.corruption.size[0]*game.corruption.size[1]) if game.corruption.surface[i] > 1])
+
+            def quitCb( *_ ):
+                game.gameIsRunning = False
+            def resumeCb( *_ ):
+                self.showGamePause()
+            def mainCb( *_ ):
+                self.nextScene = self.parent
+
+            rect.top += 300
+            self.pausedWidgets.append( widgets.TextButton( rect, 'Resume.', font='gameover3', callback=resumeCb ) )
+            rect.top += 50
+            self.pausedWidgets.append( widgets.TextButton( rect, 'Exit to menu.', font='gameover3', callback=mainCb ) )
+            rect.top += 50
+            self.pausedWidgets.append( widgets.TextButton( rect, 'Exit game.', font='gameover3', callback=quitCb ) )
+
+            for n in self.pausedWidgets:
+                self.widgets.append( n )
+
+            game.isPaused = True
 
     def showGameover( self ):
         pos = ( (game.SCREEN_SIZE[0]-320)/2, (game.SCREEN_SIZE[1]-600)/2 )
@@ -176,8 +226,15 @@ class GameScene( Scene ):
         def quitCb( *_ ):
             game.gameIsRunning = False
         self.widgets.append( widgets.TextButton( rect, 'Exit.', font='gameover3', callback=quitCb ) )
+        rect.top += 50
+        def mainCb( *_ ):
+            self.nextScene = self.parent
+        self.widgets.append( widgets.TextButton( rect, 'Main menu.', font='gameover3', callback=mainCb ) )
 
     def doTick( self ):
+        if game.isPaused:
+            return
+
         self.checkedTrees = 0
         game.clock += 1
         game.wasNight = game.isNight
@@ -207,7 +264,6 @@ class GameScene( Scene ):
                 self.toSpawn = int( math.floor( ( game.baseEnemyAmount + game.enemyPerNight * math.pow( math.floor( game.clock / game.dayTicks ), game.enemyPerNightPower ) ) ) )
                 self.perTick = int( math.ceil( self.toSpawn / game.nightTicks ) ) + 1
 
-                print( self.toSpawn, self.perTick, self.spawned )
                 self.spawned = 0
 
 
@@ -229,11 +285,11 @@ class GameScene( Scene ):
 
             self.flowThread = threading.Thread( target = lambda: self.corruption.cleanIterative() )
             self.flowThread.start()
-        #else:
-        #    print( 'WARNING: Flow update thread not done on time!' )
+        else:
+            print( 'WARNING: Flow update thread not done on time!' )
 
         if self.pathThread is None or not self.pathThread.is_alive():
             self.pathThread = threading.Thread( target = lambda: self.pathFinding.cleanRecursive() )
             self.pathThread.start()
-        #else:
-        #    print( 'WARNING: Pathfinding update thread not done on time!' )
+        else:
+            print( 'WARNING: Pathfinding update thread not done on time!' )

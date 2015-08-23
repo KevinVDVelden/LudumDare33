@@ -29,14 +29,15 @@ while game.gameIsRunning:
     lastFrameTime = curTime - lastTime
     lastTime = curTime
 
-    accumelator += lastFrameTime
+    if not game.isPaused:
+        accumelator += lastFrameTime
     game.accumelator = accumelator / 200
 
     frameTime = lastFrameTime / 1000 #Given in miliseconds, converting it to a float of unit seconds
 
     game.scene.doFrame( frameTime )
 
-    pygame.display.set_caption( 'Untitled game (%f/%d frametime. %d/%d camera)' % ( frameTime, accumelator, game.cameraPosX, game.cameraPosY ) )
+    pygame.display.set_caption( 'Self Defense.' )
     if accumelator > 200:
         #cProfile.run( 'game.scene.doTick()' )
         game.scene.doTick()

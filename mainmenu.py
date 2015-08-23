@@ -31,8 +31,6 @@ class GuiScene( Scene ):
             if event.type in ( pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN ):
                 for n in self.widgets:
                     n.checkIntersect( event )
-            else:
-                print( event )
 
     def doFrame( self, frameTime ):
         game.screen.fill( ( 30, 90, 80 ) )
@@ -72,7 +70,6 @@ class MainMenu( GuiScene ):
         self.widgets.append( TextButton( None, 'Read me', layoutFunc = self.getButtonRect, callback=help1 ) )
 
         def help2( _ ):
-            print( 'help2!' )
             self.nextScene = IconMenu( 'img/tutorial.png' )
         self.widgets.append( TextButton( None, 'Tutorial', layoutFunc = self.getButtonRect, callback=help2 ) )
 

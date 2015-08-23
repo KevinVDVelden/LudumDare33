@@ -1,6 +1,7 @@
 SCREEN_SIZE = ( 1024, 640 )
 
 gameIsRunning = True
+isPaused = False
 
 import pygame
 screen = pygame.display.set_mode( SCREEN_SIZE )

@@ -11,7 +11,7 @@ def initAssets():
                     game.assets[ path + _file ] = pygame.image.load( path + _file ).convert_alpha()
                 except Exception as e:
                     #Text files? Whatever
-                    print( path + _file, e )
+                    pass
             else:
                 initPath( path + _file + '/' )
 
