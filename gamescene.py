@@ -132,6 +132,7 @@ class GameScene( Scene ):
         gamelogic.draw.drawGui( self, frameTime, game.accumelator )
 
     def doTick( self ):
+        self.world.sortEntities()
         self.world.doTick()
         gamelogic.resources.calculateResources( self )
 

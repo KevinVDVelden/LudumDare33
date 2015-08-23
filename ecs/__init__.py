@@ -1,5 +1,6 @@
 import game
 import base.drawing
+import bisect
 from functools import lru_cache
 
 COMPONENT_RENDER = 1
@@ -73,6 +74,12 @@ class EntityList( list ):
 
         return ret
 
+    def withComponent( self, component ):
+        mask = idToMask( component )
+        return EntityList( self.world, [ ent for ent in self if (
+            ent.componentMask & mask > 0 ) ] )
+
+
 class World:
     def __init__( self ):
         self.entities = []
@@ -115,10 +122,32 @@ class World:
 
         return self.entityMasks[ compId ]
 
+    def entsInX( self, minX, maxX ):
+        minI = bisect.bisect_left( self.positionListX, minX )
+        maxI = bisect.bisect_right( self.positionListX, maxX, lo = minI )
+
+        return set( [ self.positionEntsX[i] for i in range( minI, maxI ) ] )
+    def entsInY( self, minY, maxY ):
+        minI = bisect.bisect_left( self.positionListY, minY )
+        maxI = bisect.bisect_right( self.positionListY, maxY, lo = minI )
+
+        return set( [ self.positionEntsY[i] for i in range( minI, maxI ) ] )
+
+    def entsInRect( self, rect ):
+        return self.entsInX( rect.left, rect.left + rect.width ) & self.entsInY( rect.top, rect.top + rect.height )
+
     def doClean( self ):
         if self.isDirty:
             self.isDirty = False
             self.entityMasks = list( [ None for n in range( COMPONENT_MAX ) ] )
+
+    def sortEntities( self ):
+        self.positionEntsX = tuple( sorted( self.entities, key=lambda n: n.position[0] ) )
+        self.positionListX = tuple( [ ent.position[0] for ent in self.positionEntsX ] )
+
+        self.positionEntsY = tuple( sorted( self.entities, key=lambda n: n.position[1] ) )
+        self.positionListY = tuple( [ ent.position[1] for ent in self.positionEntsY ] )
+
 
 class Component:
     def __init__( self, typeId ):

@@ -65,8 +65,10 @@ def initGui( self ):
     def addResource( name ):
         self.widgets[1].addChild( widgets.Charger, game.assets[ 'img/gui/bar_chargeholder.png' ], game.assets[ 'img/gui/bar_chargeholder_hover.png' ] )
         rect = self.widgets[1].children[-1].rect.copy()
+        rect.top += 4
         rect.height /= 2
-        self.widgets[1].addChild( widgets.TextButton, name, rect = rect, drawBackground = False )
+
+        self.widgets[1].addChild( widgets.TextButton, name, rect = rect, drawBackground = False, font = 'resources' )
         return self.widgets[1].children[-2]
 
     self.energyWidget = addResource( 'Energy' )

@@ -117,7 +117,6 @@ class Flowmap:
             addDirty( index, val )
 
         self.visited += run
-        print( len( dirtyTiles ), self.visited / (game.mapSize[0]*game.mapSize[1]) )
         if len( dirtyTiles ) > 0:
             self.dirtyTiles = dirtyTiles
             self.dirtyTileSet = dirtyTileSet
