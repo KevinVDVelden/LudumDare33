@@ -35,14 +35,13 @@ do
         echo $hue
         echo $hue_name
 
-        composite -gravity center tmp/cur_bridge.png ziggurat_base.png tmp/ziggurat.png
         convert -modulate $hue effect_red.png tmp/effect_curHue.png
 
+
+        composite -gravity center tmp/cur_bridge.png ziggurat_base.png tmp/ziggurat.png
         composite -gravity center tmp/effect_curHue.png tmp/ziggurat.png combined/building_"$hue_name"_"$bridgeI".png
 
         composite -gravity center tmp/cur_bridge.png pylon_base.png tmp/pylon.png
-        convert -modulate $hue effect_red.png tmp/effect_curHue.png
-
         composite -gravity center tmp/effect_curHue.png tmp/pylon.png combined/pylon_"$hue_name"_"$bridgeI".png
     done
 done
