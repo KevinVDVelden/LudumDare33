@@ -19,7 +19,7 @@ game.scene = MainMenu()
 
 game.fonts['menu'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 48 )
 game.fonts['resources'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 16 )
-game.fonts['description'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 12 )
+game.fonts['description'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 8 )
 game.fonts['gameover1'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 32 )
 game.fonts['gameover2'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 12 )
 game.fonts['gameover3'] = pygame.font.Font( 'fonts/kenvector_future_thin.ttf', 8 )

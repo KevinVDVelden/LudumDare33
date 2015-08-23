@@ -10,3 +10,4 @@ class Scene:
             if self.nextScene.init():
                 self.nextScene.parent = self
                 game.scene = self.nextScene
+                self.nextScene = None

@@ -11,26 +11,20 @@ from widgets import *
 
 from gamescene import GameScene
 
-class MainMenu( Scene ):
+class GuiScene( Scene ):
     def __init__( self ):
         super().__init__()
 
         self.widgets = []
-        def getButtonRect( _ ):
-            width = 200
-            height = 40
 
-            return pygame.Rect( ( game.SCREEN_SIZE[0] - width ) / 2, 60 * len( self.widgets ) + 20, width, height )
+    def init( self ):
+        return True
 
-        def startCallback( _ ):
-            #TODO: Add a loadingscreen here
-            self.nextScene = GameScene()
+    def getButtonRect( self, _ ):
+        width = 300
+        height = 40
 
-        self.widgets.append( TextButton( None, 'Start', layoutFunc = getButtonRect, callback=startCallback ) )
-
-        def quitCallback( _ ):
-            game.gameIsRunning = False
-        self.widgets.append( TextButton( None, 'Quit', layoutFunc = getButtonRect, callback=quitCallback ) )
+        return pygame.Rect( ( game.SCREEN_SIZE[0] - width ) / 2, 60 * len( self.widgets ) + 20, width, height )
 
     def doInput( self, frameTime ):
         for event in base.frame.receiveInput():
@@ -50,3 +44,39 @@ class MainMenu( Scene ):
 
     def doTick( self ):
         pass
+
+    def backCb( self, _ ):
+        self.nextScene = self.parent
+
+
+class IconMenu( GuiScene ):
+    def __init__( self, icon ):
+        super().__init__()
+
+        self.widgets.append( Icon( pygame.Rect( 0,0,game.SCREEN_SIZE[0], game.SCREEN_SIZE[1] ), game.assets[icon] ) )
+        self.widgets.append( TextButton( pygame.Rect( game.SCREEN_SIZE[0]-40, 0,40,40 ), 'Back', callback=self.backCb, font='gameover2' ) )
+
+
+class MainMenu( GuiScene ):
+    def __init__( self ):
+        super().__init__()
+
+        def startCallback( _ ):
+            #TODO: Add a loadingscreen here
+            self.nextScene = GameScene()
+
+        self.widgets.append( TextButton( None, 'Start', layoutFunc = self.getButtonRect, callback=startCallback ) )
+
+        def help1( _ ):
+            self.nextScene = IconMenu( 'img/readme.png' )
+        self.widgets.append( TextButton( None, 'Read me', layoutFunc = self.getButtonRect, callback=help1 ) )
+
+        def help2( _ ):
+            print( 'help2!' )
+            self.nextScene = IconMenu( 'img/tutorial.png' )
+        self.widgets.append( TextButton( None, 'Tutorial', layoutFunc = self.getButtonRect, callback=help2 ) )
+
+        def quitCallback( _ ):
+            game.gameIsRunning = False
+        self.widgets.append( TextButton( None, 'Quit', layoutFunc = self.getButtonRect, callback=quitCallback ) )
+

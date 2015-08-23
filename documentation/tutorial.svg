@@ -17,7 +17,7 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="tutorial.svg"
-   inkscape:export-filename="D:\Devel\Projects\LudumDare33\documentation\tutorial.png"
+   inkscape:export-filename="D:\Devel\Projects\LudumDare33\img\tutorial.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -29,9 +29,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="508.01706"
-     inkscape:cy="375.82688"
+     inkscape:zoom="0.56491957"
+     inkscape:cx="824.96506"
+     inkscape:cy="455.20163"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -218,7 +218,17 @@
          x="24.10008"
          y="988.27399"
          id="tspan3575"
-         style="font-size:22.5px">They take resources to shoot (blue bar takes energy, grey bar is metal).</tspan></text>
+         style="font-size:22.5px">They take resources to shoot (blue bar takes energy, grey bar is metal).</tspan><tspan
+         sodipodi:role="line"
+         x="24.10008"
+         y="1016.399"
+         style="font-size:22.5px"
+         id="tspan3389" /><tspan
+         sodipodi:role="line"
+         x="24.10008"
+         y="1044.5239"
+         style="font-size:22.5px"
+         id="tspan3391" /></text>
     <image
        y="464.1311"
        x="34.527931"
@@ -365,5 +375,17 @@
          id="tspan3714-5"
          x="82.990379"
          y="905.09711">Tier 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="2.1224338e-007"
+       y="1036.4307"
+       id="text3393"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3395"
+         x="2.1224338e-007"
+         y="1036.4307"
+         style="font-size:22.5px">P.S. WASD is camera control, select a building to build on bottom, build/remove with left click</tspan></text>
   </g>
 </svg>
