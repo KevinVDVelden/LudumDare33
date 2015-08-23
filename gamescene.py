@@ -32,6 +32,10 @@ addTile( 20, 'img/land/grass_night.png' )
 addTile( 21, 'img/land/grass_2_night.png' )
 addTile( 22, 'img/land/grass_3_night.png' )
 
+addTile( 32, 'img/tree_3.png' )
+addTile( 64, 'img/tree_2.png' )
+addTile( 96, 'img/tree_1.png' )
+
 class GameScene( Scene ):
     def __init__( self ):
         super().__init__()
@@ -48,6 +52,8 @@ class GameScene( Scene ):
         game.isOver = False
         game.spawnedTotal = 0
         self.spawned = 0
+        
+        self.checkedTrees = 0
 
     def isNight( self ):
         game.nightTicks = game.dayTicks - max( game.minDayTicks, game.baseDayTicks - ( game.clock / game.dayTicksReductionEvery ) )
@@ -119,8 +125,11 @@ class GameScene( Scene ):
                 if self.isNight():
                     game.mapBuffer[ i ] += 10
 
+                if cur & 96 > 0:
+                    game.mapBuffer[ i ] |= cur & 96
+
                 if cur != game.mapBuffer[ i ]:
-                    base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] ] )
+                    base.drawing.drawMap( 0, ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] & 31 ] )
 
         base.drawing.renderMap( ( int( game.cameraPosX ), int( game.cameraPosY ) ) )
 
@@ -129,6 +138,19 @@ class GameScene( Scene ):
         self.drawGame( frameTime )
         self.world.doFrame( frameTime, game.accumelator )
         gamelogic.draw.drawGui( self, frameTime, game.accumelator )
+
+        while self.checkedTrees < game.accumelator * 300:
+            self.checkedTrees += 1
+            pos = ( random.randrange( game.mapSize[0] ), random.randrange( game.mapSize[1] ) )
+            i = self.corruption.I( pos )
+
+            if game.mapBuffer[ i ] & 96 > 0 and self.corruption.surface[i] > 1:
+                game.mapBuffer[ i ] -= 32
+
+                game.mapSurface[2].fill( (255,0,255), pygame.Rect( pos[0]*32, pos[1]*32, 32, 32 ) )
+                cur = game.mapBuffer[ i ] & 96
+                if cur > 0:
+                    base.drawing.drawMap( 2, pos, game.RenderTiles[ cur ] )
 
     def showGameover( self ):
         pos = ( (game.SCREEN_SIZE[0]-320)/2, (game.SCREEN_SIZE[1]-600)/2 )
@@ -156,6 +178,7 @@ class GameScene( Scene ):
         self.widgets.append( widgets.TextButton( rect, 'Exit.', font='gameover3', callback=quitCb ) )
 
     def doTick( self ):
+        self.checkedTrees = 0
         game.clock += 1
         game.wasNight = game.isNight
         game.isNight = self.isNight()

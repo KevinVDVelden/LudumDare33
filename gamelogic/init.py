@@ -6,6 +6,7 @@ import game
 import ecs
 import gamelogic
 import pygame
+import random
 
 def init( self ):
     if self.loadLevel == 0:
@@ -13,6 +14,9 @@ def init( self ):
     elif self.loadLevel == 1:
         for i in range( len( game.mapBuffer ) ):
             game.mapBuffer[ i ] = 10
+
+            if random.random() < 0.1:
+                game.mapBuffer[ i ] |= 96
 
         self.corruption = smoothflowmap.Flowmap( game.mapSize )
         self.pathFinding = flowmap.Flowmap( game.mapSize )
@@ -22,7 +26,10 @@ def init( self ):
     elif self.loadLevel == 10:
         for x in range( 256 ):
             for y in range( 256 ):
-                base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ x + y * 256 ] ] )
+                cur = game.mapBuffer[ x + y * 256 ]
+                base.drawing.drawMap( 0, ( x, y ), game.RenderTiles[ cur & 31 ] )
+                if cur & 96 > 0:
+                    base.drawing.drawMap( 2, ( x, y ), game.RenderTiles[ cur & 96 ] )
     elif self.loadLevel == 19:
         self.world = ecs.World()
 
