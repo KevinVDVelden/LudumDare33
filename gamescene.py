@@ -26,6 +26,10 @@ addTile( 10, 'img/land/grass.png' )
 addTile( 11, 'img/land/grass_2.png' )
 addTile( 12, 'img/land/grass_3.png' )
 
+addTile( 20, 'img/land/grass_night.png' )
+addTile( 21, 'img/land/grass_2_night.png' )
+addTile( 22, 'img/land/grass_3_night.png' )
+
 class GameScene( Scene ):
     def __init__( self ):
         super().__init__()
@@ -36,24 +40,10 @@ class GameScene( Scene ):
 
         self.resources = defaultdict( lambda: ( 0, 0, 0 ) )
         self.buildingConfig = None
+        self.clock = 0
 
-    def calculateTileCorruption( self, i ):
-        x, y = int( i % game.mapSize[0] ), int( i // game.mapSize[0] )
-        corruption = self.corruption.surface[ i ]
-
-        cur = game.mapBuffer[ i ]
-
-        if corruption > 7:
-            game.mapBuffer[ i ] = 12
-        elif corruption > 0:
-            game.mapBuffer[ i ] = 11
-        else:
-            game.mapBuffer[ i ] = 10
-
-        if cur != game.mapBuffer[ i ]:
-            print( 'Redrawing %d' % cur )
-            base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] ] )
-        
+    def isNight( self ):
+        return ( self.clock % 300 ) > max( 100, 200 - ( self.clock / 150 ) )
 
     def init( self ):
         return gamelogic.init.init( self )
@@ -118,6 +108,9 @@ class GameScene( Scene ):
                 else:
                     game.mapBuffer[ i ] = 10
 
+                if self.isNight():
+                    game.mapBuffer[ i ] += 10
+
                 if cur != game.mapBuffer[ i ]:
                     base.drawing.drawMap( ( x, y ), game.RenderTiles[ game.mapBuffer[ i ] ] )
 
@@ -130,17 +123,31 @@ class GameScene( Scene ):
         gamelogic.draw.drawGui( self, frameTime, game.accumelator )
 
     def doTick( self ):
+        self.clock += 1
+        print( 'Tick tock ', self.clock )
+
         self.world.sortEntities()
         self.world.doTick()
         gamelogic.resources.calculateResources( self )
 
         #pos = (game.cameraPosX/32,game.cameraPosY/32)
-        pos=(0,0)
-        while (pos[0]-game.cameraPosX/32)**2 + (pos[1]-game.cameraPosY/32)**2 > 50**2:
-            pos = ( random.randrange( 1, game.mapSize[0] - 1 ), random.randrange( 1, game.mapSize[1] - 1 ) )
+        if self.isNight():
+            attempts = 0
+            for i in range( 1 ):
+                pos=(128,128)
+                pathPos = self.pathFinding.surface[ self.corruption.I( pos ) ]
+                while pathPos > 970 or pathPos < 920:
+                    print( pos, pathPos, attempts )
+                    pos = ( random.randrange( 1, game.mapSize[0] - 1 ), random.randrange( 1, game.mapSize[1] - 1 ) )
+                    pathPos = self.pathFinding.surface[ self.corruption.I( pos ) ]
 
-        base = gamelogic.enemies.Enemies[ random.choice( tuple( gamelogic.enemies.Enemies.keys() ) ) ]
-        gamelogic.enemies.makeEnemy( self.world, pos, base )
+                    attempts += 1
+                    if attempts > 100:
+                        break
+
+                if pathPos <= 970 and pathPos >= 920:
+                    base = gamelogic.enemies.Enemies[ random.choice( tuple( gamelogic.enemies.Enemies.keys() ) ) ]
+                    gamelogic.enemies.makeEnemy( self.world, pos, base )
 
         if self.flowThread is None or not self.flowThread.is_alive():
             self.corruption.swap()
