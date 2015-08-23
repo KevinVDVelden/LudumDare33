@@ -62,7 +62,8 @@ class ResourceStoreComponent( ecs.Component ):
         if resource not in self.caps:
             return 0
 
-        if sourceStored < 0 or self.stored[resource] + self.receiveCap[resource] < sourceStored:
+        #No taking from the poor, unless they can't store at all
+        if sourceStored < 0 or ( self.stored[resource] + self.receiveCap[resource] ) / self.caps[resource] < sourceStored:
             return min( self.caps[resource] - self.stored[resource], self.receiveCap[resource] )
         else:
             return 0

@@ -1,0 +1,10 @@
+building_metals|ziggurat|hue_metals
+building_energy|ziggurat|hue_energy
+building_heart|ziggurat|hue_heart
+
+pylon_metals|pylon|hue_metals
+pylon_energy|pylon|hue_energy
+pylon_heart|pylon|hue_heart
+
+turret_t1|turret|../flat
+turret_t2|fortified|../flat

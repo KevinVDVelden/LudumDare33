@@ -59,6 +59,9 @@ def initGui( self ):
     addBuilding( 'img/buildings/combined/pylon_energy_0.png', 'Energy pylon', setBuildingCb( gamelogic.building.energyPylon ) )
     addBuilding( 'img/buildings/combined/pylon_metals_0.png', 'Metals pylon', setBuildingCb( gamelogic.building.metalsPylon ) )
 
+    addBuilding( 'img/buildings/combined/turret_t1_0.png', 'T1 Turret', setBuildingCb( gamelogic.building.turretT1 ) )
+    addBuilding( 'img/buildings/combined/turret_t2_0.png', 'T2 Turret', setBuildingCb( gamelogic.building.turretT2 ) )
+
     #Resources
     self.widgets.append( widgets.Bar( 512, 'img/gui/bar', onTop = True, margin=10 ) )
 

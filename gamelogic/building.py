@@ -27,3 +27,6 @@ metalsPylon = { 'building': 'pylon_metals', 'resources': { 'metals': ( 1, 200, 2
 
 hearthZiggurat = { 'building': 'building_heart', 'resources': { 'energy': ( -25, 50, 50, 0 ), 'metals': ( -25, 50, 50, 0 ) }, 'corrupts': 3000, 'pathImportance': 1000 }
 hearthPylon = { 'building': 'pylon_heart', 'resources': { 'energy': ( 1, 200, 25, 25 ), 'metals': ( 1, 200, 25, 25 ) }, 'corrupts': 3000, 'pathImportance': 1000 }
+
+turretT1 = { 'building': 'turret_t1', 'resources': { 'energy': ( 0, 200, 0, 5 ) }, 'pathImportance': 1010 }
+turretT2 = { 'building': 'turret_t1', 'resources': { 'energy': ( 0, 500, 0, 10 ), 'metals': ( 0, 500, 0, 10 ) }, 'pathImportance': 1010 }

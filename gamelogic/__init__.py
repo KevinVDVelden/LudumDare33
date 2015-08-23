@@ -101,7 +101,7 @@ class BuildingComponent( ecs.Component ):
                 if storage.receiveCap[resource] == 0:
                     stored = -1
 
-                canReceive = self.neighbours[ i ].canReceive( resource, stored )
+                canReceive = self.neighbours[ i ].canReceive( resource, stored / storage.caps[resource] )
                 if canReceive > 5:
                     send = storage.getBurst( resource, canReceive )
                     if send > 0:
@@ -127,9 +127,9 @@ class BuildingComponent( ecs.Component ):
 
                     targets = storageComponents.atPosition( checkPos )
                     if len( targets ) > 0:
-                        canReceive = targets[0].getComponent( ecs.COMPONENT_RESOURCE ).canReceive( resource, stored )
+                        canReceive = targets[0].getComponent( ecs.COMPONENT_RESOURCE ).canReceive( resource, stored / storage.caps[resource] )
 
-                        if canReceive > 5:
+                        if canReceive > 1:
                             send = storage.getBurst( resource, canReceive )
 
                             def callbackFactory( self, orbDir ):

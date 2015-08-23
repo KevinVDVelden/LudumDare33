@@ -1,0 +1,1 @@
+BUILDING_NAMES=building_metals building_energy building_heart pylon_metals pylon_energy pylon_heart turret_t1 turret_t2 
